@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import institutionRoutes from './routes/institutionRoutes.js';
 
 const app = express();
 
@@ -23,7 +24,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
 
-//API ROutes Here
+//API Routes
+app.use('/api/institutions', institutionRoutes);
 
 //keep alive mechanism
 app.get('/health', (req, res) => {
