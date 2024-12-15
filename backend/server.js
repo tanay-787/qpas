@@ -7,6 +7,8 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import institutionRoutes from './routes/institutionRoutes.js';
+import waitingLobbyRoutes from './routes/waitingLobbyRoutes.js';
+
 
 const app = express();
 
@@ -26,6 +28,7 @@ app.use(cookieParser());
 
 //API Routes
 app.use('/api/institutions', institutionRoutes);
+app.use('/api/waiting-lobby', waitingLobbyRoutes);
 
 //keep alive mechanism
 app.get('/health', (req, res) => {

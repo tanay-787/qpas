@@ -1,5 +1,9 @@
 import { admin } from '../config/firebase.js';
 
+/**
+ * Verify the token and set the firebase user data in the request object
+ */
+
 const verifyToken = async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
