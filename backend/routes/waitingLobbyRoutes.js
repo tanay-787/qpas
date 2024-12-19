@@ -9,18 +9,18 @@ import { updateRequestStatus } from '../controllers/waitingLobby/updateRequestSt
 const router = Router();
 
 // Add a user to the waiting lobby of a specific institution
-router.post('/:inst_id/join', verifyToken, extractUserData, addToWaitingLobby);
+router.post('/:institution_id/join', verifyToken, extractUserData, addToWaitingLobby);
 
 // Fetch all pending requests for teachers (Admin only)
-router.get('/:inst_id/teachers', verifyToken, extractUserData, roleCheck('admin'), getPendingRequests);
+router.get('/:institution_id/teachers', verifyToken, extractUserData, roleCheck('admin'), getPendingRequests);
 
 // Fetch all pending requests for students (Teacher only)
-router.get('/:inst_id/students', verifyToken, extractUserData, roleCheck('teacher'), getPendingRequests);
+router.get('/:institution_id/students', verifyToken, extractUserData, roleCheck('teacher'), getPendingRequests);
 
 // Approve or reject a teacher's request (Admin only)
-router.patch('/:inst_id/teachers/:id', verifyToken, extractUserData, roleCheck('admin'), updateRequestStatus);
+router.patch('/:institution_id/teachers/:id', verifyToken, extractUserData, roleCheck('admin'), updateRequestStatus);
 
 // Approve or reject a student's request (Teacher only)
-router.patch('/:inst_id/students/:id', verifyToken, extractUserData, roleCheck('teacher'), updateRequestStatus);
+router.patch('/:institution_id/students/:id', verifyToken, extractUserData, roleCheck('teacher'), updateRequestStatus);
 
 export default router;

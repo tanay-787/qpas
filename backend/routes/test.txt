@@ -1,5 +1,5 @@
 {
-  "email": "user01@gmail.com",
-  "password": "user@01",
+  "email": "admin1@gmail.com",
+  "password": "admin@1",
   "returnSecureToken": "true"
 }

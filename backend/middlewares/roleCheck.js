@@ -4,8 +4,11 @@
 
 const roleCheck = (requiredRole) => async (req, res, next) => {
   try {
+    const userRole = req.userRecord.role;
+    console.log(`User role: ${userRole}`);
+    console.log(`Required role: ${requiredRole}`);
     // Check the user's role
-    if (req.userRecord.role !== requiredRole) {
+    if (userRole !== requiredRole) {
       return res.status(403).json({ message: 'Access forbidden: insufficient role.' });
     }
 

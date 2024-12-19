@@ -5,7 +5,7 @@ const checkUserDetails = async (req, res) => {
     try {
       res.status(200).json({
         message: "User details fetched successfully.",
-        data: req.user,
+        data: req.userRecord,
       });
     } catch (error) {
       res.status(500).json({

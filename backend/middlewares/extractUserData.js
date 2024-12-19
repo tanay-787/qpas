@@ -4,7 +4,7 @@ import { db } from '../config/firebase.js';
  * Extracts user data from Firestore
  */
 
-const extractUserData = () => async (req, res, next) => {
+const extractUserData = async (req, res, next) => {
   try {
     // Use the UID from req.user to fetch user data from Firestore
     const userDoc = await db.collection('users').doc(req.user.uid).get();
@@ -17,11 +17,11 @@ const extractUserData = () => async (req, res, next) => {
 
     // Attach user data to the request object
     req.userRecord = userData;
-
+    
     next();
   } catch (error) {
     console.error('Error checking user role:', error);
-    res.status(500).json({ message: 'Internal server error.' });
+    return res.status(500).json({ message: 'Internal server error.' });
   }
 };
 
