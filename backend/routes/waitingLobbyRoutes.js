@@ -2,14 +2,14 @@ import { Router } from 'express';
 import verifyToken from '../middlewares/verifyToken.js';
 import extractUserData from '../middlewares/extractUserData.js';
 import roleCheck from '../middlewares/roleCheck.js';
-import { addToWaitingLobby } from '../controllers/waitingLobby/addToWaitingLobby.js';
+import { joinWaitingLobby } from '../controllers/waitingLobby/joinWaitingLobby.js';
 import { getPendingRequests } from '../controllers/waitingLobby/getPendingRequests.js';
 import { updateRequestStatus } from '../controllers/waitingLobby/updateRequestStatus.js';
 
 const router = Router();
 
 // Add a user to the waiting lobby of a specific institution
-router.post('/:institution_id/join', verifyToken, extractUserData, addToWaitingLobby);
+router.post('/:institution_id/join', verifyToken, extractUserData, joinWaitingLobby);
 
 // Fetch all pending requests for teachers (Admin only)
 router.get('/:institution_id/teachers', verifyToken, extractUserData, roleCheck('admin'), getPendingRequests);

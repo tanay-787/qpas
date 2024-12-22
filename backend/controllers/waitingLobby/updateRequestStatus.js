@@ -1,43 +1,47 @@
-import { db } from '../../config/firebase.js';
+import { db, admin } from '../../config/firebase.js';
 
 /**
  * Update the status of a request (approved or rejected)
  */
 const updateRequestStatus = async (req, res) => {
-  const { institution_id } = req.params;
+  const { institution_id, request_id } = req.params; // Assuming request_id is passed as a URL parameter
   const { status } = req.body; // Expecting "approved" or "rejected"
-  const user_id = req.userRecord.uid; // Extract user ID from userRecord
 
   try {
-    const lobbyRef = db
+    const requestRef = db
       .collection('institutions')
       .doc(institution_id)
-      .collection('waiting_lobby');
-    
-    const snapshot = await lobbyRef.where('user_id', '==', user_id).limit(1).get();
+      .collection('waiting_lobby')
+      .doc(request_id);
 
-    if (snapshot.empty) {
+    const requestDoc = await requestRef.get();
+
+    if (!requestDoc.exists) {
       return res.status(404).json({ message: 'Request not found in the waiting lobby.' });
     }
 
-    const requestDoc = snapshot.docs[0];
     const requestData = requestDoc.data();
+    const user_id = requestData.user_id; // User ID from the request data
 
     if (status === 'approved') {
       const institutionRef = db.collection('institutions').doc(institution_id);
       const roleField = requestData.role_requested === 'teacher' ? 'teacher_list' : 'student_list';
 
       await institutionRef.update({
-        [roleField]: db.FieldValue.arrayUnion(user_id),
+        [roleField]: admin.firestore.FieldValue.arrayUnion(user_id),
       });
 
       res.status(200).json({ message: `User approved as ${requestData.role_requested}.` });
     } else if (status === 'rejected') {
       res.status(200).json({ message: 'Request rejected.' });
+    } else {
+      return res.status(400).json({ message: 'Invalid status provided.' });
     }
 
-    await requestDoc.ref.delete(); // Remove request from the lobby
+    // Remove request from the lobby
+    await requestRef.delete();
   } catch (error) {
+    console.error('Error updating request status:', error);
     res.status(500).json({
       message: 'Failed to update request status.',
       error: error.message,
@@ -45,4 +49,4 @@ const updateRequestStatus = async (req, res) => {
   }
 };
 
-  export { updateRequestStatus };
+export { updateRequestStatus };

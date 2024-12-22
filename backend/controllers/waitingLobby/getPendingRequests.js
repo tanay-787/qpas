@@ -15,9 +15,10 @@ const getPendingRequests = async (req, res) => {
         .where('status', '==', 'pending')
         .get();
   
-      snapshot.forEach((doc) => {
-        requests.push({ id: doc.id, ...doc.data() });
-      });
+        snapshot.forEach((doc) => {
+          requests.push(doc.data());
+        });
+        
   
       res.status(200).json(requests);
     } catch (error) {
