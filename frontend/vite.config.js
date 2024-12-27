@@ -10,4 +10,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      "/api": {
+               target: process.env.NODE_ENV === 'production' 
+                 ? "https://cleat-central.onrender.com"
+                 : "http://localhost:3000",
+                changeOrigin: true,
+                secure: true,
+      },
+    },
+  }
 });

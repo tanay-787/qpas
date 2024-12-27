@@ -28,6 +28,7 @@ export default function AuthProvider({ children }) {
   const { toast } = useToast()
   const navigate = useNavigate()
 
+  // Check if user is logged in on page load
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
@@ -47,6 +48,9 @@ export default function AuthProvider({ children }) {
     return () => unsubscribe()
   }, [])
 
+  /**
+   * Sign in with Google
+   */
   const signInWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider()
@@ -64,9 +68,11 @@ export default function AuthProvider({ children }) {
       if (!userDoc.exists()) {
         await setDoc(userDocRef, {
           ...userData,
+          role: '',
           createdAt: new Date(),
         })
       }
+      
       if (userDoc.data().role) {
         await handleRoleBasedRouting()
       }
@@ -174,6 +180,8 @@ export default function AuthProvider({ children }) {
       const userDoc = await getDoc(userDocRef)
       const userData = userDoc.data()
       
+      // Use this: userData.role ? navigate(`/${userData.role}/dashboard`) : navigate("/role-selection")
+
       if (userData.role === "admin") {
         navigate("/admin/dashboard")
       } else if (userData.role === "teacher") {

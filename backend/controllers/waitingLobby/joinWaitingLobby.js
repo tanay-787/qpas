@@ -5,7 +5,7 @@ import { db } from '../../config/firebase.js';
  */
 const joinWaitingLobby = async (req, res) => {
   const { institution_id } = req.params; // Extract institution ID from params
-  const { role_requested } = req.body;
+  const { role_requested, form_responses } = req.body;
 
   try {
     const user_id = req.userRecord.uid; // Extract user ID from userRecord
@@ -41,6 +41,7 @@ const joinWaitingLobby = async (req, res) => {
       request_id: newRequestRef.id, // Unique request ID
       user_id,
       role_requested,
+      form_responses,
       status: 'pending',
       created_at: new Date().toISOString(),
     });
