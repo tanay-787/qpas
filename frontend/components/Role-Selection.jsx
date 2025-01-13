@@ -12,7 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useAuth } from './context/AuthContext'
+import { useAuth } from '../context/AuthContext'
 import { doc, updateDoc, getDoc } from 'firebase/firestore'
 import { firestore } from '../firebase.config'
 import { useToast } from "@/hooks/use-toast"

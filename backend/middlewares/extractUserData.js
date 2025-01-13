@@ -20,7 +20,7 @@ const extractUserData = async (req, res, next) => {
     
     next();
   } catch (error) {
-    console.error('Error checking user role:', error);
+    console.error('Error finding user:', error);
     return res.status(500).json({ message: 'Internal server error.' });
   }
 };

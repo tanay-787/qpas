@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 import { storage, firestore } from '../../firebase.config'
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { collection, addDoc, getDocs, query, orderBy, limit } from 'firebase/firestore'
@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast"
 import { Loader2, Upload } from "lucide-react"
 import { useNavigate } from 'react-router-dom'
-import { useInstitution } from '../context/InstitutionContext'
+import { useInstitution } from '../../context/InstitutionContext'
 
 export default function CreateInstitution() {
   const [institutionName, setInstitutionName] = useState('')

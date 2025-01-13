@@ -3,9 +3,9 @@ import verifyToken from '../middlewares/verifyToken.js';
 import roleCheck from '../middlewares/roleCheck.js';
 import extractUserData from '../middlewares/extractUserData.js';
 import { createInstitution } from '../controllers/institution/createInstitution.js';
-import { getInstitutionById } from '../controllers/institution/getInstitutionById.js';
+import { getInstitutionByUid } from '../controllers/institution/getInstitutionByUid.js';
+import { getInstitutionByMemberOf } from '../controllers/institution/getInstitutionByMemberOf.js';
 import { getAllInstitutions } from '../controllers/institution/getAllInstitutions.js';
-import { checkUserDetails } from '../controllers/checkUserDetails.js';
 import { setFormDefinition, getFormDefinition } from '../controllers/verification-forms/index.js';
 
 const router = Router();
@@ -14,20 +14,20 @@ const router = Router();
 router.get('/', getAllInstitutions);
 
 // Admin-only: Create an institution
-router.post('/create', verifyToken, extractUserData, roleCheck('admin'), createInstitution);
+router.post('/create', verifyToken, extractUserData, createInstitution);
 
 // Admin-only: Set form definition for an institution
-router.post('/:institution_id/form', verifyToken, extractUserData, roleCheck('admin'), setFormDefinition);
+router.post('/:institution_id/form-definition', verifyToken, extractUserData, roleCheck('admin'), setFormDefinition);
 
 // Admin-only: Get form definition for an institution
 router.get('/:institution_id/form', verifyToken, extractUserData, roleCheck('admin'), getFormDefinition);
 
 // Admin-only: Fetch institution by UID
-router.get('/admin-dashboard', verifyToken, extractUserData, roleCheck('admin'), getInstitutionById);
+router.get('/by-uid', verifyToken, extractUserData, roleCheck('admin'), getInstitutionByUid);
 
-// Authenticated: Check user details(FOR TESTING ONLY)
-router.get('/check', verifyToken, extractUserData, checkUserDetails);
+//Members-only
+router.get('/by-memberOf', verifyToken, extractUserData, getInstitutionByMemberOf );
 
-
+router.patch('/update', verifyToken, extractUserData, roleCheck('admin'))
   
 export default router;

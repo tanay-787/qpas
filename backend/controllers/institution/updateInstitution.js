@@ -3,8 +3,8 @@ import { db, auth } from '../../config/firebase.js'; // assuming you're using Fi
 /**
  * Create a new institution
  */
-const createInstitution = async (req, res) => {
-  const { instId, name, logoUrl, description } = req.body;
+const updateInstitution = async (req, res) => {
+  const { name, logoUrl, description } = req.body;
   const userId = req.userRecord.uid; // The logged-in user's UID
 
   try {
@@ -15,8 +15,8 @@ const createInstitution = async (req, res) => {
 
     // Create the institution document
     await institutionRef.set({
-      name,
       inst_id: institutionRef.id, // Unique institution ID
+      name,
       logoUrl: logoUrl || placeholderLogoUrl, // Default logo URL fallback
       createdBy: userId, // Reference to the user who created the institution
       teacher_list: [],
@@ -45,4 +45,4 @@ const createInstitution = async (req, res) => {
   }
 };
 
-export { createInstitution };
+export { updateInstitution };

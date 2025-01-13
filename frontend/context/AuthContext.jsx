@@ -1,10 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
-import {
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -14,7 +9,7 @@ import {
 } from 'firebase/auth'
 import { updateProfile } from 'firebase/auth'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
-import { auth, firestore } from '../../firebase.config'
+import { auth, firestore } from '../firebase.config'
 import { useToast } from '@/hooks/use-toast'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
@@ -23,34 +18,66 @@ const AuthContext = createContext(null)
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
+  const [userToken, setUserToken] = useState(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
   const { toast } = useToast()
   const navigate = useNavigate()
 
-  // Check if user is logged in on page load
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      
       if (firebaseUser) {
-        const userData = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
+        try {
+          // Setting Auth JWT Token by Firebase
+          const token = await firebaseUser.getIdToken();
+          setUserToken(token);
+          
+          // Fetch user data from Firestore
+          const userDocRef = doc(firestore, "users", firebaseUser.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists()) {
+            const userData = userDoc.data();
+  
+            // Set user data in state
+            setUser(userData); // Only set user state if user data exists
+            setIsLoggedIn(true);
+          } else {
+            console.log("No user data found");
+            setUser(null);
+          }
+
+        } catch (error) {
+          console.error("Error fetching user data:", error);
+          setUser(null);
         }
-        setUser(userData)
-        await handleRoleBasedRouting()
       } else {
-        setUser(null)
+        // User is logged out, reset user state
+        setUser(null);
+        setIsLoggedIn(false);
       }
-      setLoading(false)
-    })
+  
+      setLoading(false);
+    });
+  
+    return () => unsubscribe(); // Cleanup on unmount
+  }, []);
+  
 
-    return () => unsubscribe()
-  }, [])
 
-  /**
-   * Sign in with Google
-   */
+  const showAuthError = () => {
+    if (!isLoggedIn) {
+      toast({
+        title: "Authentication Error",
+        description: "You must be logged in to perform this action.",
+        variant: "destructive",
+      })
+      return false
+    }
+    return true
+  }
+
   const signInWithGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider()
@@ -61,22 +88,17 @@ export default function AuthProvider({ children }) {
         displayName: result.user.displayName,
       }
 
-      // Check if user exists in Firestore
       const userDocRef = doc(firestore, "users", result.user.uid)
       const userDoc = await getDoc(userDocRef)
 
       if (!userDoc.exists()) {
         await setDoc(userDocRef, {
           ...userData,
-          role: '',
           createdAt: new Date(),
         })
       }
       
-      if (userDoc.data().role) {
-        await handleRoleBasedRouting()
-      }
-
+      setIsLoggedIn(true)
 
       toast({
         title: "Success",
@@ -95,14 +117,13 @@ export default function AuthProvider({ children }) {
   const signInWithEmail = async (email, password) => {
     try {
       await signInWithEmailAndPassword(auth, email, password)
-      //The user's password is NOT the password used to access the user's email account. 
+      setIsLoggedIn(true)
       toast({
         title: "Success",
         description: "Successfully signed in",
       })
       await handleRoleBasedRouting()
     } catch (error) {
-      //When Email Enumeration Protection is enabled, this method fails with "auth/invalid-credential" in case of an invalid email/password.
       toast({
         title: "Failed to sign in",
         description: "Please re-check credentials and try again",
@@ -116,7 +137,6 @@ export default function AuthProvider({ children }) {
       const result = await createUserWithEmailAndPassword(auth, email, password)
       const user = result.user
   
-      // Update the user's profile with the display name
       await updateProfile(user, { displayName })
   
       const userData = {
@@ -125,14 +145,13 @@ export default function AuthProvider({ children }) {
         displayName: displayName,
       }
   
-      // Add new user to Firestore
       const userDocRef = doc(firestore, "users", user.uid)
       await setDoc(userDocRef, {
         ...userData,
         createdAt: new Date(),
       })
   
-      setUser(userData)
+      setIsLoggedIn(true)
   
       toast({
         title: "Success",
@@ -144,8 +163,7 @@ export default function AuthProvider({ children }) {
       toast({
         title: "Error",
         description: error.message,
-        variant: "destructive",
-        action: <Button onClick={() => navigate("/login")}>Head to Login Page</Button>
+        variant: "destructive"
       })
     }
   }
@@ -153,6 +171,7 @@ export default function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await signOut(auth)
+      setIsLoggedIn(false)
       toast({
         title: "Success",
         description: "Successfully signed out",
@@ -169,28 +188,20 @@ export default function AuthProvider({ children }) {
   
   const handleRoleBasedRouting = async() => {
     try {
-      if (!user) {
+      if (!isLoggedIn) {
         toast({
           title: "Routing",
           description: "Make sure you have signed in and please try again.",
           variant: "destructive"
         })
+        return
       }
       const userDocRef = doc(firestore, "users", user.uid)
       const userDoc = await getDoc(userDocRef)
       const userData = userDoc.data()
       
-      // Use this: userData.role ? navigate(`/${userData.role}/dashboard`) : navigate("/role-selection")
+      userData?.role ? navigate(`/${userData.role}/dashboard`) : navigate("/role-selection")
 
-      if (userData.role === "admin") {
-        navigate("/admin/dashboard")
-      } else if (userData.role === "teacher") {
-        navigate("/teacher/dashboard")
-      } else if (userData.role === "student") {
-        navigate("/student/dashboard")
-      } else if (!userData.role) {
-        navigate("/role-selection")
-      }
     } catch (error) {
       toast({
         title: "Routing",
@@ -204,12 +215,15 @@ export default function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user,
+        userToken,
+        isLoggedIn,
         loading,
         signInWithGoogle,
         signInWithEmail,
         createUserWithEmail,
         logout,
-        handleRoleBasedRouting
+        handleRoleBasedRouting,
+        showAuthError
       }}
     >
       {children}
@@ -224,3 +238,4 @@ export const useAuth = () => {
   }
   return context
 }
+

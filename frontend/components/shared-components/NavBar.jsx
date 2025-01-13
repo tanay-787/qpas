@@ -16,7 +16,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Heart, ShoppingBag, ChevronDown, Menu, LogIn, CircleUser, User } from 'lucide-react'
 import { ModeToggle } from "@/components/mode-toggle"
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../../context/AuthContext'
 import { useTheme } from "@/components/themeProvider"
 import { useToast } from "@/hooks/use-toast"
 
@@ -63,7 +63,7 @@ export default function NavBar() {
             <div className="flex items-center space-x-4">
                 <nav className="hidden md:flex space-x-4">
                     <a href="/" className="text-md hover:underline">Home</a>
-                    <a href="#" className="text-md hover:underline">Catalogue</a>
+                    <a href="/browse-institutions" className="text-md hover:underline">Catalogue</a>
                     <a href="#" className="text-md hover:underline">Blog</a>
                     {/* <a href="#" className="text-md hover:underline">Contact Us</a> */}
                 </nav>

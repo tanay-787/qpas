@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { firestore } from "../../firebase.config";
 import { doc, getDoc } from "firebase/firestore";
-import { useInstitution } from "../context/InstitutionContext";
-import { useAuth } from "../context/AuthContext";
+import { useInstitution } from "../../context/InstitutionContext";
+import { useAuth } from "../../context/AuthContext";
 import NavBar from "../shared-components/NavBar";
 
 export default function AdminDashboard() {

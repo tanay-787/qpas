@@ -1,5 +1,4 @@
 import { db } from '../../config/firebase.js';
-import { FieldPath } from 'firebase-admin/firestore';
 
 /**
  * Fetch all institutions along with their creators' details.
