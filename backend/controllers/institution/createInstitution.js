@@ -11,7 +11,7 @@ const createInstitution = async (req, res) => {
     const institutionRef = db.collection("institutions").doc();
 
     // Use a default logo URL if none is provided
-    const placeholderLogoUrl = "https://via.placeholder.com/150?text=Institution+Logo";
+    const placeholderLogoUrl = "https://placehold.co/150?text=Institution+Logo";
 
     // Create the institution document
     await institutionRef.set({

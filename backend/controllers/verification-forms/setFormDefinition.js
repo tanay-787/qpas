@@ -5,11 +5,13 @@ import { db } from '../../config/firebase.js';
  */
 const setFormDefinition = async (req, res) => {
   const { institution_id } = req.params;
-  const { form_definition } = req.body;
+
+  let form_fields = [];
+  form_fields = req.body.fields;
 
   try {
     const institutionRef = db.collection('institutions').doc(institution_id);
-    await institutionRef.update({ form_definition });
+    await institutionRef.update({ form_definition: form_fields });
 
     res.status(200).json({
       message: 'Form definition updated successfully.',

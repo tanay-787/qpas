@@ -9,11 +9,12 @@ import SignUp from "./components/user-auth/SignUp";
 import LogIn from "./components/user-auth/LogIn";
 import RoleSelection from "./components/Role-Selection";
 import CreateInstitution from "./components/admin/CreateInstitution";
-import AdminDashboard from "./components/admin/AdminDashboard";
+import AdminDashboard from "./components/AdminDashboard";
 import BrowseInstitutions from "./components/BrowseInstitutions";
 
 import SampleDashboard from "./components/SampleDashboard";
 import FormStructureBuilder from "./components/FormStructureBuilder";
+import WLJoinForm from "./components/WL-JoinForm";
 
 const queryClient = new QueryClient();
 
@@ -36,11 +37,11 @@ export default function App() {
 
             {/* Join as a member */}
             <Route path="/role-selection" element={<RoleSelection />} />
+            <Route path="/teacher/waiting-lobby" element={<WLJoinForm />} />
             
             <Route path="/sample" element={<SampleDashboard />} />
             {/* Admin Routes */}
             <Route path="/institutions/:institution_id/form-builder" element={<FormStructureBuilder /> } />
-            <Route path="/:institution_id/admin/verification-form" element={null } />
             <Route path="/:institution_id/admin/dashboard" element={<AdminDashboard /> } />
 
             {/* Teacher Routes */}

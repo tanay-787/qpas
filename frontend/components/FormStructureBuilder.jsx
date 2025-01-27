@@ -16,53 +16,56 @@ import { Switch } from '@/components/ui/switch'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import NavBar from './shared-components/NavBar'
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '../context/AuthContext';
+import { useToast } from '@/hooks/use-toast'
+import { useAuth } from '../context/AuthContext'
+import { useInstitution } from '../context/InstitutionContext'
+import axios from 'axios'
 
 const saveFormDefinition = async ({ institutionId, formData, userToken }) => {
   try {
     const response = await axios.post(
-      `/api/institutions/${institutionId}/form-definition`, // Include the institution ID in the URL
+      `/api/institutions/${institutionId}/form-definition`,
       formData,
       {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${userToken}`, // Include the token in the Authorization header
+          Authorization: `Bearer ${userToken}`,
         },
       }
-    );
-    return response.data; // Return the response data
+    )
+    return response.data
   } catch (error) {
-    throw new Error('Failed to save form definition');
+    throw new Error(error)
   }
-};
+}
 
 export default function FormBuilder() {
-  const { userToken } = useAuth();
-  const { institutionId } = useParams();
+  const { userToken } = useAuth()
+  const { institution } = useInstitution()
   const [fields, setFields] = useState([])
   const [currentField, setCurrentField] = useState({
     name: '',
     type: 'text',
     description: '',
     required: false,
-    acceptedFileTypes: ''
+    acceptedFileTypes: '',
   })
   const { toast } = useToast()
 
   const mutation = useMutation({
-    mutationFn: saveFormDefinition,
+    mutationFn: ({ institutionId, formData, userToken }) =>
+      saveFormDefinition({ institutionId, formData, userToken }),
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Form definition saved successfully",
+        title: 'Success',
+        description: 'Form definition saved successfully',
       })
     },
     onError: (error) => {
       toast({
-        title: "Error",
+        title: 'Error',
         description: `Failed to save form definition: ${error.message}`,
-        variant: "destructive",
+        variant: 'destructive',
       })
     },
   })
@@ -75,35 +78,37 @@ export default function FormBuilder() {
     { value: 'tel', label: 'Phone' },
     { value: 'textarea', label: 'Long Text' },
     { value: 'date', label: 'Date' },
-    { value: 'file', label: 'File Upload' }
+    { value: 'file', label: 'File Upload' },
   ]
 
   const addField = () => {
     if (currentField.name.trim()) {
-      setFields([...fields, { ...currentField, id: Date.now() }])
+      const newField = { ...currentField, id: Date.now() }
+      if (newField.type !== 'file') {
+        delete newField.acceptedFileTypes
+      }
+      setFields([...fields, newField])
       setCurrentField({
         name: '',
         type: 'text',
         description: '',
         required: false,
-        acceptedFileTypes: ''
+        acceptedFileTypes: '',
       })
     }
   }
 
   const removeField = (id) => {
-    setFields(fields.filter(field => field.id !== id))
+    setFields(fields.filter((field) => field.id !== id))
   }
 
   const handleSave = () => {
-    //trigger mutation
     mutation.mutate({
-      institutionId,
+      institutionId: institution.inst_id,
       formData: { fields },
       userToken,
-    });
-  };
-  
+    })
+  }
 
   return (
     <div className="min-h-screen">
@@ -127,7 +132,9 @@ export default function FormBuilder() {
                   <Input
                     id="fieldName"
                     value={currentField.name}
-                    onChange={(e) => setCurrentField({ ...currentField, name: e.target.value })}
+                    onChange={(e) =>
+                      setCurrentField({ ...currentField, name: e.target.value })
+                    }
                     placeholder="Enter field name"
                   />
                 </div>
@@ -136,7 +143,9 @@ export default function FormBuilder() {
                   <Label htmlFor="fieldType">Field Type</Label>
                   <Select
                     value={currentField.type}
-                    onValueChange={(value) => setCurrentField({ ...currentField, type: value })}
+                    onValueChange={(value) =>
+                      setCurrentField({ ...currentField, type: value })
+                    }
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select field type" />
@@ -156,7 +165,12 @@ export default function FormBuilder() {
                   <Textarea
                     id="description"
                     value={currentField.description}
-                    onChange={(e) => setCurrentField({ ...currentField, description: e.target.value })}
+                    onChange={(e) =>
+                      setCurrentField({
+                        ...currentField,
+                        description: e.target.value,
+                      })
+                    }
                     placeholder="Enter field description (will be used as placeholder text)"
                     rows={3}
                   />
@@ -168,7 +182,12 @@ export default function FormBuilder() {
                     <Input
                       id="acceptedFileTypes"
                       value={currentField.acceptedFileTypes}
-                      onChange={(e) => setCurrentField({ ...currentField, acceptedFileTypes: e.target.value })}
+                      onChange={(e) =>
+                        setCurrentField({
+                          ...currentField,
+                          acceptedFileTypes: e.target.value,
+                        })
+                      }
                       placeholder="e.g., .pdf,.doc,.docx"
                     />
                     <p className="text-sm text-muted-foreground mt-1">
@@ -181,7 +200,9 @@ export default function FormBuilder() {
                   <Switch
                     id="required"
                     checked={currentField.required}
-                    onCheckedChange={(checked) => setCurrentField({ ...currentField, required: checked })}
+                    onCheckedChange={(checked) =>
+                      setCurrentField({ ...currentField, required: checked })
+                    }
                   />
                   <Label htmlFor="required">Required Field</Label>
                 </div>
@@ -244,7 +265,7 @@ export default function FormBuilder() {
                       <Button
                         variant="destructive"
                         size="icon"
-                        className="absolute -right-12 top-8"
+                        className="absolute right-2 top-8"
                         onClick={() => removeField(field.id)}
                       >
                         <Trash2 className="w-4 h-4" />

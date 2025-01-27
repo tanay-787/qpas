@@ -1,7 +1,7 @@
 import { db } from '../../config/firebase.js';
 
 /**
- * Get the form definition for an institution
+ * Get the form definition for an institution (NOT NEEDED AT ALL)
  */
 const getFormDefinition = async (req, res) => {
   const { institution_id } = req.params;
@@ -15,7 +15,7 @@ const getFormDefinition = async (req, res) => {
         message: 'Institution not found.',
       });
     }
-
+    
     const { form_definition } = doc.data();
     res.status(200).json(form_definition);
   } catch (error) {

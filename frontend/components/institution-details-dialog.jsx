@@ -23,11 +23,6 @@ export function InstitutionDetailsDialog({ institution, open, onOpenChange }) {
         {
           role_requested: role,
           form_responses: {}, // Add the form responses if needed
-        },
-        {
-          headers: {
-            'Authorization': `Bearer ${userToken}`,
-          },
         }
       );
       return response.data; // Return the response for handling success
@@ -79,7 +74,7 @@ export function InstitutionDetailsDialog({ institution, open, onOpenChange }) {
             <Button 
               className="flex-1" 
               onClick={() => handleJoin('teacher')}
-              isLoading={isJoining} // Loading state for the button
+              isloading={isJoining} // Loading state for the button
               disabled={isJoining} // Disable while request is in progress
             >
               <UserPlus className="w-4 h-4 mr-2" />

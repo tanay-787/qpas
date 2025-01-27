@@ -5,6 +5,7 @@ import axios from 'axios';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase.config';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 // Create a context
 const InstitutionContext = createContext();
@@ -15,14 +16,10 @@ export function useInstitution() {
 }
 
 // Fetch institution function
-const fetchInstitution = async (user, userToken) => {
+const fetchInstitution = async (user) => {
   try {
     const institution_API_Endpoint = (user?.role === 'admin') ? (`/api/institutions/by-uid`) : (`/api/institutions/by-memberOf`);
-    const response = await axios.get(institution_API_Endpoint, {
-      headers: {
-        'Authorization': `Bearer ${userToken}`,
-      },
-    });
+    const response = await axios.get(institution_API_Endpoint);
     return response.data;
   } catch (error) {
     console.error("Failed to fetch institution", error);
@@ -31,14 +28,9 @@ const fetchInstitution = async (user, userToken) => {
 };
 
 // Create institution function
-const createInstitution = async (data, userToken) => {
+const createInstitution = async (data) => {
   try {
-    const response = await axios.post('/api/institutions/create', data, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userToken}`,
-      },
-    });
+    const response = await axios.post('/api/institutions/create', data);
     return response.data;
   } catch (error) {
     console.error("Failed to create institution", error);
@@ -47,15 +39,9 @@ const createInstitution = async (data, userToken) => {
 };
 
 // Update institution function
-const updateInstitution = async (data, userToken) => {
-
+const updateInstitution = async (data) => {
   try {
-    const response = await axios.patch(`/api/institutions/update`, data, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userToken}`,
-      },
-    });
+    const response = await axios.patch(`/api/institutions/update`, data);
     return response.data;
   } catch (error) {
     console.error("Failed to update institution", error);
@@ -63,31 +49,56 @@ const updateInstitution = async (data, userToken) => {
   }
 };
 
+
 // InstitutionProvider component
 export function InstitutionProvider({ children }) {
   const { user, userToken } = useAuth();
   const [institution, setInstitution] = useState(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  //Setting userToken through axios interceptors
+
+  useEffect(() => {
+    // Setup Axios interceptor to add token to every request
+    const requestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        if (userToken) {
+          config.headers['Authorization'] = `Bearer ${userToken}`; // Add token if available
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    // Cleanup interceptor when the component unmounts or userToken changes
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+    };
+  }, [userToken]); 
+
+
 
   // Fetch institution data
   const { data: institutionData, isLoading: isFetchingInstitution, isError: isInstitutionError, isSuccess: isInstitutionFetched, error: institutionError } = useQuery({
     queryKey: ['institution', user?.uid],
-    queryFn: () => fetchInstitution(user, userToken),
+    queryFn: () => fetchInstitution(user),
     enabled: !!(user?.uid && user?.role),
   });
 
-
   useEffect(() => {
-    // Alternative for the onSuccess behaviour of useQuery (deprecated)
+    // Alternative for the onSuccess behaviour of useQuery (useQuery: onSuccess has been deprecated in v5)
     if (isInstitutionFetched) {
       setInstitution(institutionData);
+      handleRouting(user, institution);
     }
   }, [isInstitutionFetched, institutionData]);
 
 
-  // Institution create mutation
+  // Create Institution mutation
   const { mutateAsync: createInstitutionMutation, isLoading: isCreatingInstitution, error: createInstitutionError } = useMutation({
-    mutationFn: (data) => createInstitution(data, userToken),
+    mutationFn: (data) => createInstitution(data),
     enabled: !!(user?.uid && !user.role),
     onSuccess: () => {
       queryClient.invalidateQueries(['institution', user?.uid]);
@@ -100,7 +111,7 @@ export function InstitutionProvider({ children }) {
 
   // Institution update mutation
   const { mutateAsync: updateInstitutionMutation, isLoading: isUpdatingInstitution, error: updateInstitutionError } = useMutation({
-    mutationFn: (data) => updateInstitution(data, userToken),
+    mutationFn: (data) => updateInstitution(data),
     enabled: !!(user?.uid && user?.role === 'admin'), // Only enable for users with admin role
     onSuccess: (updatedInstitution) => {
       setInstitution(updatedInstitution);
@@ -125,7 +136,40 @@ export function InstitutionProvider({ children }) {
     }
   };
 
-  // Provide values via context
+    // Handle Routing
+    const handleRouting = (user, institution) => {
+      const studentDashboardPath = `${institution?.inst_id}/student/dashboard`;
+      const teacherDashboardPath = `${institution?.inst_id}/teacher/dashboard`;
+      const adminDashboardPath = `${institution?.inst_id}/admin/dashboard`;
+  
+      let pathToNavigate;
+  
+      if (user?.role === 'admin' && institution?.createdBy === user?.uid) {
+        pathToNavigate = adminDashboardPath;
+      } else if (user?.role === 'teacher' && user?.memberOf === institution?.inst_id) {
+        pathToNavigate = teacherDashboardPath;
+      } else if (user?.role === 'student' && user?.memberOf === institution?.inst_id) {
+        pathToNavigate = studentDashboardPath;
+      }
+  
+      if (!pathToNavigate) {
+        toast({
+          title: 'No institution found',
+          description: 'Please create an institution or join an existing institution.',
+          status: 'error',
+        });
+        return;
+      }
+  
+      if(pathToNavigate){
+        toast({
+          title: 'Redirecting to dashboard',
+          description: 'Please wait while we redirect you to your dashboard.',
+        });
+        navigate(pathToNavigate);
+      }
+    };
+
   return (
     <InstitutionContext.Provider
       value={{
