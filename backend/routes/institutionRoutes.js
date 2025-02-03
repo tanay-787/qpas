@@ -19,8 +19,11 @@ router.post('/create', verifyToken, extractUserData, createInstitution);
 // Admin-only: Set form definition for an institution
 router.post('/:institution_id/form-definition', verifyToken, extractUserData, roleCheck('admin'), setFormDefinition);
 
-// Admin-only: Get form definition for an institution
-router.get('/:institution_id/form', verifyToken, extractUserData, roleCheck('admin'), getFormDefinition);
+// Teacher-only: Get form definition for an institution
+router.get('/:institution_id/teacher/form', verifyToken, extractUserData, getFormDefinition);
+
+// Student-only: Get form definition for an institution
+router.get('/:institution_id/student/form', verifyToken, extractUserData, getFormDefinition);
 
 // Admin-only: Fetch institution by UID
 router.get('/by-uid', verifyToken, extractUserData, roleCheck('admin'), getInstitutionByUid);
@@ -28,6 +31,7 @@ router.get('/by-uid', verifyToken, extractUserData, roleCheck('admin'), getInsti
 //Members-only
 router.get('/by-memberOf', verifyToken, extractUserData, getInstitutionByMemberOf );
 
+//Admin-only: Update institution
 router.patch('/update', verifyToken, extractUserData, roleCheck('admin'))
   
 export default router;

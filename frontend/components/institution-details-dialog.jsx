@@ -1,19 +1,26 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { UserPlus, GraduationCap } from 'lucide-react';
+import { UserPlus, GraduationCap, ChevronDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext'; // Assuming you have an auth context
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useState } from 'react';
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export function InstitutionDetailsDialog({ institution, open, onOpenChange }) {
   if (!institution) return null;
 
   const { user, userToken, showAuthError } = useAuth(); // Assuming user and userToken are available here
   const [error, setError] = useState(null);
-  const { toast }  = useToast();
+  const [selectedRole, setSelectedRole] = useState(null); // State to manage selected role
+  const { toast } = useToast();
 
   // Mutation to join waiting lobby
   const { mutateAsync: joinWaitingLobby, isLoading: isJoining } = useMutation({
@@ -46,9 +53,18 @@ export function InstitutionDetailsDialog({ institution, open, onOpenChange }) {
     },
   });
 
-  const handleJoin = async (role) => {
+  const handleJoin = async () => {
+    if (!selectedRole) {
+      toast({
+        title: "Error",
+        description: "Please select a role to join.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (user) {
-      await joinWaitingLobby(role); //Trigger Mutation
+      await joinWaitingLobby(selectedRole); //Trigger Mutation
     } else {
       showAuthError();
     }
@@ -71,23 +87,31 @@ export function InstitutionDetailsDialog({ institution, open, onOpenChange }) {
             {institution.description || "No description available."}
           </p>
           <div className="flex gap-4 w-full">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="flex-1" disabled={isJoining}>
+                  {selectedRole ? `Join as ${selectedRole}` : "Select Role"}
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => setSelectedRole('teacher')}>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Teacher
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setSelectedRole('student')}>
+                  <GraduationCap className="w-4 h-4 mr-2" />
+                  Student
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button 
               className="flex-1" 
-              onClick={() => handleJoin('teacher')}
-              isloading={isJoining} // Loading state for the button
-              disabled={isJoining} // Disable while request is in progress
-            >
-              <UserPlus className="w-4 h-4 mr-2" />
-              Join as Teacher
-            </Button>
-            <Button 
-              className="flex-1" 
-              onClick={() => handleJoin('student')}
+              onClick={handleJoin}
               isLoading={isJoining} // Loading state for the button
-              disabled={isJoining} // Disable while request is in progress
+              disabled={isJoining || !selectedRole} // Disable while request is in progress or no role selected
             >
-              <GraduationCap className="w-4 h-4 mr-2" />
-              Join as Student
+              Join
             </Button>
           </div>
 

@@ -1,7 +1,7 @@
 import { db } from '../../config/firebase.js';
 
 /**
- * Get the form definition for an institution (NOT NEEDED AT ALL)
+ * Get the form definition for an institution
  */
 const getFormDefinition = async (req, res) => {
   const { institution_id } = req.params;
