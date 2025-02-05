@@ -4,8 +4,8 @@ import { db, admin } from '../../config/firebase.js';
  * Update the status of a request (approved or rejected)
  */
 const updateRequestStatus = async (req, res) => {
-  const { institution_id, request_id } = req.params; // Assuming request_id is passed as a URL parameter
-  const { status } = req.body; // Expecting "approved" or "rejected"
+  const { institution_id, request_id, action } = req.params; // Assuming request_id is passed as a URL parameter
+ // Expecting "approved" or "rejected"
 
   try {
     const requestRef = db
@@ -23,23 +23,24 @@ const updateRequestStatus = async (req, res) => {
     const requestData = requestDoc.data();
     const user_id = requestData.user_id; // User ID from the request data
 
-    if (status === 'approved') {
+    if (action === 'approve') {
       const institutionRef = db.collection('institutions').doc(institution_id);
       const roleField = requestData.role_requested === 'teacher' ? 'teacher_list' : 'student_list';
 
       await institutionRef.update({
         [roleField]: admin.firestore.FieldValue.arrayUnion(user_id),
       });
-
+      
       res.status(200).json({ message: `User approved as ${requestData.role_requested}.` });
-    } else if (status === 'rejected') {
+      await requestRef.delete();
+    } else if (action === 'reject') {
       res.status(200).json({ message: 'Request rejected.' });
+      await requestRef.delete();
     } else {
       return res.status(400).json({ message: 'Invalid status provided.' });
     }
 
-    // Remove request from the lobby
-    await requestRef.delete();
+    
   } catch (error) {
     console.error('Error updating request status:', error);
     res.status(500).json({

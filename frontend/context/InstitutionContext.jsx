@@ -91,7 +91,7 @@ export function InstitutionProvider({ children }) {
     // Alternative for the onSuccess behaviour of useQuery (useQuery: onSuccess has been deprecated in v5)
     if (isInstitutionFetched) {
       setInstitution(institutionData);
-      handleRouting(user, institution);
+      handleRouting(user, institutionData);
     }
   }, [isInstitutionFetched, institutionData]);
 
@@ -138,6 +138,14 @@ export function InstitutionProvider({ children }) {
 
     // Handle Routing
     const handleRouting = (user, institution) => {
+      if(user && institution){
+        toast({
+          title: 'Redirecting to dashboard',
+          description: 'Please wait while we redirect you to your dashboard.',
+        });
+        
+      }
+
       const studentDashboardPath = `${institution?.inst_id}/student/dashboard`;
       const teacherDashboardPath = `${institution?.inst_id}/teacher/dashboard`;
       const adminDashboardPath = `${institution?.inst_id}/admin/dashboard`;
@@ -160,15 +168,12 @@ export function InstitutionProvider({ children }) {
         });
         return;
       }
-  
-      if(pathToNavigate){
-        toast({
-          title: 'Redirecting to dashboard',
-          description: 'Please wait while we redirect you to your dashboard.',
-        });
+      if (pathToNavigate) {
         navigate(pathToNavigate);
       }
     };
+  
+      
 
   return (
     <InstitutionContext.Provider

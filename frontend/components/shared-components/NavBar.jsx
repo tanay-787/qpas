@@ -59,7 +59,7 @@ export default function NavBar() {
       
 
     return (
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between border-b">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between border-b bg-background/85 backdrop-blur-[3px] sticky top-0 z-50">
             <div className="flex items-center space-x-4">
                 <nav className="hidden md:flex space-x-4">
                     <a href="/" className="text-md hover:underline">Home</a>

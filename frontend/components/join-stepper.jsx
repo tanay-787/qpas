@@ -144,7 +144,7 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
 
             {currentStep === 2 && <SuccessStep institution={institution} />}
           </CardContent>
-
+      
           <CardFooter className="flex justify-between border-t border-border pt-6">
             <Button
               variant="outline"

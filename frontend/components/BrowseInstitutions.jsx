@@ -62,7 +62,6 @@ export default function BrowseInstitutions() {
 
   return (
     <div className="min-h-screen">
-      <NavBar />
       <div className="container mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="text-center mb-12">

@@ -2,43 +2,38 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthProvider from "./context/AuthContext";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { InstitutionProvider } from "./context/InstitutionContext";
-
-
 import LandingPage from "./components/LandingPage";
 import SignUp from "./components/user-auth/SignUp";
 import LogIn from "./components/user-auth/LogIn";
-import RoleSelection from "./components/Role-Selection";
-import CreateInstitution from "./components/admin/CreateInstitution";
 import AdminDashboard from "./components/AdminDashboard";
 import BrowseInstitutions from "./components/BrowseInstitutions";
-
 import SampleDashboard from "./components/SampleDashboard";
 import FormStructureBuilder from "./components/FormStructureBuilder";
-import WLJoinForm from "./components/WL-JoinForm";
+import NavBar from "./components/shared-components/NavBar";
+import { useLocation } from "react-router-dom";
+
 
 const queryClient = new QueryClient();
 
 export default function App() {
+  const location = useLocation();
+  const isAuthRoute = location.pathname === '/login' || location.pathname === '/signup';
+
   return (
     <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <InstitutionProvider>
-      
+          <div>
+            {!isAuthRoute && <NavBar />}
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            {/* Auth Routes */}
             <Route path="/signup" element={<SignUp />} />
             <Route path="/login" element={<LogIn />} />
-
-    
+            <Route path="/" element={<LandingPage />} />
+            
             {/* User Searches for Institutions */}
             <Route path="/browse-institutions" element={<BrowseInstitutions />} />
-            {/* Chooses to create a new one */}
-            <Route path="/create-institution" element={<CreateInstitution />} />
 
-            {/* Join as a member */}
-            <Route path="/role-selection" element={<RoleSelection />} />
-            <Route path="/teacher/waiting-lobby" element={<WLJoinForm />} />
-            
             <Route path="/sample" element={<SampleDashboard />} />
             {/* Admin Routes */}
             <Route path="/institutions/:institution_id/form-builder" element={<FormStructureBuilder /> } />
@@ -51,6 +46,7 @@ export default function App() {
             <Route path="/student/dashboard" element={null } />
             <Route path="/:institution_id/student/dashboard" element={null } />
           </Routes>
+          </div>
       </InstitutionProvider>
     </AuthProvider>
     </QueryClientProvider>

@@ -200,7 +200,7 @@ export default function AuthProvider({ children }) {
       const userDoc = await getDoc(userDocRef)
       const userData = userDoc.data()
       
-      userData?.role ? navigate(`/${userData.role}/dashboard`) : navigate("/role-selection")
+      setUser(userData)
 
     } catch (error) {
       toast({

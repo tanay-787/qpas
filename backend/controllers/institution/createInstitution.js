@@ -29,7 +29,7 @@ const createInstitution = async (req, res) => {
 
     await userRef.update({
       role: 'admin', // Assign 'admin' role
-      member_of: db.collection('institutions').doc(institutionRef.id), // Add the institution to the 'member_of' field
+      member_of: institutionRef.id, // Add the institution to the 'member_of' field
     });
 
     res.status(201).json({

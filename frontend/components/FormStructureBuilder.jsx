@@ -249,7 +249,6 @@ export default function FormBuilder() {
 
   return (
     <div className="min-h-screen">
-      <NavBar />
       <div className="container mx-auto p-6">
         <h1 className="text-3xl font-bold mb-2">Design Registration Form</h1>
         <p className="text-muted-foreground mb-6">

@@ -14,19 +14,34 @@ const getPendingRequests = async (req, res) => {
         .collection('waiting_lobby')
         .where('status', '==', 'pending')
         .get();
-  
-        snapshot.forEach((doc) => {
-          requests.push(doc.data());
-        });
+
+      // Get all requests and their user data
+      const requestPromises = snapshot.docs.map(async (doc) => {
+        const requestData = doc.data();
         
-  
-      res.status(200).json(requests);
+        // Fetch user data for each request
+        const userDoc = await db
+          .collection('users')
+          .doc(requestData.user_id)
+          .get();
+
+        // Return combined request and user data
+        return {
+          ...requestData,
+          user: userDoc.exists ? userDoc.data() : null
+        };
+      });
+
+      // Wait for all user data to be fetched
+      const requestsWithUsers = await Promise.all(requestPromises);
+      
+      res.status(200).json(requestsWithUsers);
     } catch (error) {
       res.status(500).json({
         message: 'Failed to fetch pending requests.',
         error: error.message,
       });
     }
-  };
+};
   
-  export { getPendingRequests };
+export { getPendingRequests };
