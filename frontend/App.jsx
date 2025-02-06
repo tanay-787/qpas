@@ -11,7 +11,7 @@ import SampleDashboard from "./components/SampleDashboard";
 import FormStructureBuilder from "./components/FormStructureBuilder";
 import NavBar from "./components/shared-components/NavBar";
 import { useLocation } from "react-router-dom";
-
+import AnimatedContent from "@/components/ui/animated-content";
 
 const queryClient = new QueryClient();
 
@@ -21,34 +21,46 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <InstitutionProvider>
+      <AuthProvider>
+        <InstitutionProvider>
           <div>
-            {!isAuthRoute && <NavBar />}
-          <Routes>
-            {/* Auth Routes */}
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/login" element={<LogIn />} />
-            <Route path="/" element={<LandingPage />} />
-            
-            {/* User Searches for Institutions */}
-            <Route path="/browse-institutions" element={<BrowseInstitutions />} />
+            <AnimatedContent
+              distance={100}
+              direction="vertical"
+              reverse={false}
+              config={{ tension: 50, friction: 25 }}
+              initialOpacity={0.0}
+              animateOpacity
+              scale={1.0}
+              threshold={0.1}
+            >
+              {!isAuthRoute && <NavBar />}
 
-            <Route path="/sample" element={<SampleDashboard />} />
-            {/* Admin Routes */}
-            <Route path="/institutions/:institution_id/form-builder" element={<FormStructureBuilder /> } />
-            <Route path="/:institution_id/admin/dashboard" element={<AdminDashboard /> } />
+              <Routes>
+                {/* Auth Routes */}
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/login" element={<LogIn />} />
+                <Route path="/" element={<LandingPage />} />
 
-            {/* Teacher Routes */}
-            <Route path="/:institution_id/teacher/dashboard" element={null } />
+                {/* User Searches for Institutions */}
+                <Route path="/browse-institutions" element={<BrowseInstitutions />} />
 
-            {/* Student Routes */}
-            <Route path="/student/dashboard" element={null } />
-            <Route path="/:institution_id/student/dashboard" element={null } />
-          </Routes>
+                <Route path="/sample" element={<SampleDashboard />} />
+                {/* Admin Routes */}
+                <Route path="/institutions/:institution_id/form-builder" element={<FormStructureBuilder />} />
+                <Route path="/:institution_id/admin/dashboard" element={<AdminDashboard />} />
+
+                {/* Teacher Routes */}
+                <Route path="/:institution_id/teacher/dashboard" element={null} />
+
+                {/* Student Routes */}
+                <Route path="/student/dashboard" element={null} />
+                <Route path="/:institution_id/student/dashboard" element={null} />
+              </Routes>
+            </AnimatedContent>
           </div>
-      </InstitutionProvider>
-    </AuthProvider>
+        </InstitutionProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

@@ -46,22 +46,21 @@ export default function AdminDashboard() {
         isLoading: loadingMembers,
         refetch: refetchMembers
     } = useQuery({
-        queryKey: ['institution-members'],
-        queryFn: () => {
-            let response = [];
-            response = institution?.teacher_list;
-            return response;
-        },
-        enabled: !!institution
+        queryKey: ['institution-members', institution?.inst_id],
+        queryFn: async () => {
+          const response = await axios.get(`/api/institutions/${institution.inst_id}/members/teachers`);
+          return response.data;
+      },
+        enabled: !!(institution?.inst_id)
     });
 
     // Mutation for request actions
     const { mutate: handleRequestAction } = useMutation({
         mutationFn: async ({ requestId, action }) => {
-            const response = await axios.post(`/api/waiting-lobby/${institution.inst_id}/requests/${requestId}/${action}`);
+            const response = await axios.patch(`/api/waiting-lobby/${institution.inst_id}/requests/${requestId}/${action}`);
             return response.data;
         },
-        onSuccess: () => refetchRequests()
+        onSuccess: () => refetchRequests() && refetchMembers()
     });
 
     // Mutation for member actions
@@ -91,7 +90,7 @@ export default function AdminDashboard() {
           <Tabs defaultValue="requests" className="space-y-6">
             <TabsList>
               <TabsTrigger value="requests">Waiting Lobby ({waitingLobbyRequests?.length || 0})</TabsTrigger>
-              <TabsTrigger value="members">Members ({members?.length || 0})</TabsTrigger>
+              <TabsTrigger value="members">Members ({members?.teacher_list?.length || 0})</TabsTrigger>
               <TabsTrigger value="application-form">Application Form</TabsTrigger>
               <TabsTrigger value="profile">Institution Settings</TabsTrigger>
             </TabsList>
@@ -106,7 +105,7 @@ export default function AdminDashboard() {
     
             <TabsContent value="members">
               <MembersTab
-                members={members}
+                members={members?.teacher_list }
                 loading={loadingMembers}
                 onMemberAction={handleMemberAction}
               />

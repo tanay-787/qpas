@@ -20,13 +20,15 @@ const getTeachers = async (req, res) => {
       // Get teacher UIDs from institution
       const teacherUIDs = institutionData.teacher_list || [];
 
+      if(teacherUIDs.length === 0){
+        return res.status(200).json({ message: 'No teachers found' });
+      }
       // Fetch user documents for teacher UIDs
       const usersSnapshot = await db.collection('users')
         .where(admin.firestore.FieldPath.documentId(), 'in', teacherUIDs)
         .get();
 
       const teacherDocs = usersSnapshot.docs.map(doc => ({
-        uid: doc.id,
         ...doc.data()
       }));
 
@@ -38,6 +40,7 @@ const getTeachers = async (req, res) => {
       };
 
       res.status(200).json(response);
+      
     } catch (error) {
         res.status(500).json({ message: `Error fetching teachers: ${error.message}` });
       }

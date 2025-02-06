@@ -12,7 +12,7 @@ export default function MembersTab({ members, loading, onMemberAction }) {
                 <CardTitle>Current Members</CardTitle>
             </CardHeader>
             <CardContent>
-                <ScrollArea className="h-[600px]">
+                <ScrollArea className="h-[100vh] w-100">
                     {loading ? (
                         <div className="space-y-4">
                             {[...Array(5)].map((_, i) => (
@@ -25,28 +25,28 @@ export default function MembersTab({ members, loading, onMemberAction }) {
                                 <TableRow>
                                     <TableHead>User</TableHead>
                                     <TableHead>Role</TableHead>
-                                    <TableHead>Joined At</TableHead>
+                                    <TableHead>Email</TableHead>
                                     <TableHead>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {members?.map(member => (
-                                    <TableRow key={member.id}>
-                                        <TableCell>{member.name}</TableCell>
+                                    <TableRow key={member.uid}>
+                                        <TableCell>{member.displayName}</TableCell>
                                         <TableCell>
                                             <Badge variant="outline">
                                                 {member.role}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {new Date(member.joined_at).toLocaleDateString()}
+                                            {member.email}
                                         </TableCell>
                                         <TableCell className="flex space-x-2">
                                             <Button
                                                 variant="secondary"
                                                 size="sm"
                                                 onClick={() => onMemberAction({
-                                                    userId: member.id,
+                                                    userId: member.uid,
                                                     action: 'change-role'
                                                 })}
                                             >
@@ -57,7 +57,7 @@ export default function MembersTab({ members, loading, onMemberAction }) {
                                                 variant="destructive"
                                                 size="sm"
                                                 onClick={() => onMemberAction({
-                                                    userId: member.id,
+                                                    userId: member.uid,
                                                     action: 'remove'
                                                 })}
                                             >

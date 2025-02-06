@@ -6,6 +6,8 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase.config';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useLocation } from 'react-router-dom';
 
 // Create a context
 const InstitutionContext = createContext();
@@ -56,7 +58,9 @@ export function InstitutionProvider({ children }) {
   const [institution, setInstitution] = useState(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const [proceedToNavigate, setProceedToNavigate] = useState(false); //For AutoRouting
 
   //Setting userToken through axios interceptors
 
@@ -76,7 +80,7 @@ export function InstitutionProvider({ children }) {
     return () => {
       axios.interceptors.request.eject(requestInterceptor);
     };
-  }, [userToken]); 
+  }, [userToken]);
 
 
 
@@ -91,9 +95,68 @@ export function InstitutionProvider({ children }) {
     // Alternative for the onSuccess behaviour of useQuery (useQuery: onSuccess has been deprecated in v5)
     if (isInstitutionFetched) {
       setInstitution(institutionData);
-      handleRouting(user, institutionData);
     }
   }, [isInstitutionFetched, institutionData]);
+
+  const handleRouting = (user, institution) => {
+    if (user && institution) {
+      toast({
+        title: 'We found your institution',
+        description: 'Click on the button to visit your dashboard',
+        action: (
+          <Button
+            onClick={() => handleNavigation(user, institution)} // Pass handleNavigation inside onClick
+            variant="outline"
+            className="rounded-full"
+          >
+            Continue
+          </Button>
+        ),
+      });
+    }
+  };
+
+  const handleNavigation = async (user, institution) => {
+    // Display a full page loading animation instead of this toast
+    toast({
+      title: 'Redirecting you to your dashboard',
+      description: 'Please wait...',
+    });
+
+    const studentDashboardPath = `${institution?.inst_id}/student/dashboard`;
+    const teacherDashboardPath = `${institution?.inst_id}/teacher/dashboard`;
+    const adminDashboardPath = `${institution?.inst_id}/admin/dashboard`;
+
+    let pathToNavigate;
+
+    if (user?.role === 'admin' && institution?.createdBy === user?.uid) {
+      pathToNavigate = adminDashboardPath;
+    } else if (user?.role === 'teacher' && user?.memberOf === institution?.inst_id) {
+      pathToNavigate = teacherDashboardPath;
+    } else if (user?.role === 'student' && user?.memberOf === institution?.inst_id) {
+      pathToNavigate = studentDashboardPath;
+    }
+
+    if (!pathToNavigate) {
+      toast({
+        title: 'No institution found',
+        description: 'Please create an institution or join an existing institution.',
+        status: 'error',
+      });
+      return;
+    }
+
+    if (pathToNavigate) {
+      navigate(pathToNavigate);
+    }
+  };
+  
+  // Call handleRouting whenever the institution is fetched and set
+  useEffect(() => {
+    if (institution) {
+      handleRouting(user, institution);
+    }
+  }, [institution]);
 
 
   // Create Institution mutation
@@ -136,44 +199,12 @@ export function InstitutionProvider({ children }) {
     }
   };
 
-    // Handle Routing
-    const handleRouting = (user, institution) => {
-      if(user && institution){
-        toast({
-          title: 'Redirecting to dashboard',
-          description: 'Please wait while we redirect you to your dashboard.',
-        });
-        
-      }
+  // Handle Routing
 
-      const studentDashboardPath = `${institution?.inst_id}/student/dashboard`;
-      const teacherDashboardPath = `${institution?.inst_id}/teacher/dashboard`;
-      const adminDashboardPath = `${institution?.inst_id}/admin/dashboard`;
-  
-      let pathToNavigate;
-  
-      if (user?.role === 'admin' && institution?.createdBy === user?.uid) {
-        pathToNavigate = adminDashboardPath;
-      } else if (user?.role === 'teacher' && user?.memberOf === institution?.inst_id) {
-        pathToNavigate = teacherDashboardPath;
-      } else if (user?.role === 'student' && user?.memberOf === institution?.inst_id) {
-        pathToNavigate = studentDashboardPath;
-      }
-  
-      if (!pathToNavigate) {
-        toast({
-          title: 'No institution found',
-          description: 'Please create an institution or join an existing institution.',
-          status: 'error',
-        });
-        return;
-      }
-      if (pathToNavigate) {
-        navigate(pathToNavigate);
-      }
-    };
-  
-      
+
+
+
+
 
   return (
     <InstitutionContext.Provider

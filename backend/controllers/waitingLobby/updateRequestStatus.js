@@ -5,7 +5,7 @@ import { db, admin } from '../../config/firebase.js';
  */
 const updateRequestStatus = async (req, res) => {
   const { institution_id, request_id, action } = req.params; // Assuming request_id is passed as a URL parameter
- // Expecting "approved" or "rejected"
+ // Expecting "approve" or "reject"
 
   try {
     const requestRef = db
@@ -29,6 +29,13 @@ const updateRequestStatus = async (req, res) => {
 
       await institutionRef.update({
         [roleField]: admin.firestore.FieldValue.arrayUnion(user_id),
+      });
+
+      const userRef = db.collection('users').doc(user_id);
+
+      await userRef.update({
+        role: requestData.role_requested,
+        member_of: institution_id,
       });
       
       res.status(200).json({ message: `User approved as ${requestData.role_requested}.` });

@@ -1,7 +1,7 @@
 import { db } from '../../config/firebase.js';
 import { admin } from '../../config/firebase.js';
 /**
- * Fetch the teachers for the institution
+ * Fetch the students for the institution
  */
 const getTeachers = async (req, res) => {
   try {
