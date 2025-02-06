@@ -91,7 +91,7 @@ export default function NavBar() {
                         </DropdownMenuContent>
                       </DropdownMenu>
                 ) : (
-                    <Button variant="ghost" size="icon" onClick={() => navigate('/signup')}>
+                    <Button variant="ghost" size="icon" onClick={() => navigate('/login')}>
                         <LogIn size={20} />
                     </Button>
                 )}
