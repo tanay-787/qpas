@@ -85,7 +85,7 @@ export function InstitutionProvider({ children }) {
 
 
   // Fetch institution data
-  const { data: institutionData, isLoading: isFetchingInstitution, isError: isInstitutionError, isSuccess: isInstitutionFetched, error: institutionError } = useQuery({
+  const { data: institutionData, isLoading: isFetchingInstitution, isError: isInstitutionError, isSuccess: isInstitutionFetched, error: institutionError, refetch: refetchInstitution } = useQuery({
     queryKey: ['institution', user?.uid],
     queryFn: () => fetchInstitution(user),
     enabled: !!(user?.uid && user?.role),
@@ -165,6 +165,7 @@ export function InstitutionProvider({ children }) {
     enabled: !!(user?.uid && !user.role),
     onSuccess: () => {
       queryClient.invalidateQueries(['institution', user?.uid]);
+      refetchInstitution();
     },
     onError: (error) => {
       console.error("Failed to create institution:", error);

@@ -126,7 +126,7 @@ export default function FormBuilder() {
 
   const handleSave = () => {
     mutation.mutate({
-      institutionId: institution.inst_id,
+      institutionId: institution?.inst_id,
       formData: { fields },
       userToken,
     });

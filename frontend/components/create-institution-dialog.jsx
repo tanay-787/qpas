@@ -50,7 +50,7 @@ export default function CreateInstitutionDialog({ open, onOpenChange }) {
       reset();
       setPreviewUrl(null);
       onOpenChange(false);
-      toast({ title: 'Success', description: `Institution: ${institution.name} created successfully`, variant: 'default' });
+      toast({ title: 'Success', description: `Institution: ${createdInstitution.name} created successfully`, variant: 'default' });
       navigate(`/institutions/${createdInstitutionId}/form-builder`);
     } catch (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
