@@ -162,7 +162,7 @@ export function InstitutionProvider({ children }) {
   // Create Institution mutation
   const { mutateAsync: createInstitutionMutation, isLoading: isCreatingInstitution, error: createInstitutionError } = useMutation({
     mutationFn: (data) => createInstitution(data),
-    enabled: !!(user?.uid && !user.role),
+    enabled: !!(user?.uid && !user?.role),
     onSuccess: () => {
       queryClient.invalidateQueries(['institution', user?.uid]);
       refetchInstitution();
