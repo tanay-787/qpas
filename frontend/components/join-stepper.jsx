@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Check, User, FileText, Smile } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Stepper, Step, useStepper } from "@/components/ui/stepper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { DialogContent, Dialog } from "@/components/ui/dialog";
@@ -9,28 +9,23 @@ import { SuccessStep } from "./success";
 import { useForm, useWatch } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { Loader2, X, CheckCircle } from "lucide-react";
+import { Check } from "lucide-react";
 
 const steps = [
-  { title: "Select Role", description: "Choose your role", icon: <User className="w-5 h-5" /> },
-  { title: "Join Form", description: "Provide your details", icon: <FileText className="w-5 h-5" /> },
-  { title: "Complete", description: "Application submitted", icon: <Smile className="w-5 h-5" /> },
+  { title: "Select Role", description: "Choose your role" },
+  { title: "Join Form", description: "Provide your details" },
+  { title: "Complete", description: "Application submitted" },
 ];
 
 export default function JoinStepper({ open, onOpenChange, institution }) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [formStructure, setFormStructure] = useState([]);
   const [serverError, setServerError] = useState(null);
-
   const { control, handleSubmit, formState: { isValid }, reset } = useForm({
     mode: "onChange",
+    defaultValues: { role: "" }
   });
-
   const selectedRole = useWatch({ control, name: "role" });
 
-
-  /**
-   * Mutation to add the user to the Waiting Lobby
-   */
   const joinWLMutation = useMutation({
     mutationFn: async (formData) => {
       const transformedData = {
@@ -38,34 +33,23 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
         form_responses: Object.entries(formData).filter(([key]) => key !== 'role').map(([field_id, value]) => ({ field_id, value }))
       };
 
-      const response = await axios.post(`/api/waiting-lobby/${institution.inst_id}/join`,transformedData);
+      const response = await axios.post(`/api/waiting-lobby/${institution.inst_id}/join`, transformedData);
       return response.data;
     },
     onSuccess: () => {
       setServerError(null);
-      handleNext();
-      reset(); // Reset form after successful submission
+      reset();
     },
     onError: (error) => {
       setServerError(error.response?.data?.message || 'Submission failed. Please try again.');
     }
   });
 
-  const handleNext = () => {
-    setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-  };
-
-  const handleBack = () => {
-    setCurrentStep((prev) => Math.max(prev - 1, 0));
-  };
-
   const handleOpenChange = (open) => {
     onOpenChange(open);
     if (!open) {
-      setCurrentStep(0);
-      setFormStructure([]);
+      reset({ role: "" });
       setServerError(null);
-      reset();
     }
   };
 
@@ -85,93 +69,101 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
               <p className="text-sm text-muted-foreground">{institution.description}</p>
             </div>
 
-            <div className="flex justify-between mb-8 relative">
-              {steps.map((step, index) => (
-                <div key={step.title} className="flex flex-col items-center flex-1 relative">
-                  <div className="flex items-center">
-                    {index > 0 && (
-                      <div
-                        className={`absolute h-[2px] w-[calc(50%-1.25rem)] left-0 top-1/2 transform -translate-y-1/2 ${
-                          index <= currentStep ? "bg-primary" : "bg-muted"
-                        }`}
-                      />
-                    )}
-                    <div
-                      className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all relative z-10 ${
-                        index === currentStep
-                          ? "border-primary bg-background scale-110"
-                          : index < currentStep
-                          ? "border-primary bg-primary text-primary-foreground"
-                          : "border-muted bg-background"
-                      }`}
-                    >
-                      {index < currentStep ? <Check className="w-5 h-5" /> : step.icon}
-                    </div>
-                    {index < steps.length - 1 && (
-                      <div
-                        className={`absolute h-[2px] w-[calc(50%-1.25rem)] right-0 top-1/2 transform -translate-y-1/2 ${
-                          index < currentStep ? "bg-primary" : "bg-muted"
-                        }`}
-                      />
-                    )}
-                  </div>
-                  <div className="mt-2 text-center">
-                    <div className="text-sm font-medium">{step.title}</div>
-                    <div className="text-xs text-muted-foreground">{step.description}</div>
-                  </div>
+            <Stepper
+              initialStep={0}
+              orientation="horizontal"
+              responsive
+              size="md"
+              variant="circle"
+              steps={steps}
+              className="mb-8"
+            >
+              <Step 
+                label="Select Role" 
+                state={!selectedRole ? "error" : undefined}
+                errorIcon={X}
+              >
+                <RoleSelection control={control} institution={institution} />
+              </Step>
+
+              <Step 
+                label="Join Form" 
+                state={joinWLMutation.isPending ? "loading" : serverError ? "error" : undefined}
+                checkIcon={Check}
+                errorIcon={X}
+              >
+                <div className="space-y-4">
+                  <JoinForm
+                    control={control}
+                    institution={institution}
+                    selectedRole={selectedRole}
+                    onSubmit={handleSubmit(onSubmit)}
+                  />
+                  {serverError && (
+                    <p className="pb-5 text-red-500 text-sm ">Error: {serverError}</p>
+                  )}
                 </div>
-              ))}
-            </div>
+              </Step>
 
-            {currentStep === 0 && (
-              <RoleSelection control={control} institution={institution} />
-            )}
+              <Step 
+                label="Complete"
+                state="completed"
+                checkIcon={<CheckCircle className="w-4 h-4" />}
+              >
+                <SuccessStep institution={institution} />
+              </Step>
 
-            {currentStep === 1 && (
-              <div className="space-y-4">
-                <JoinForm
-                  control={control}
-                  institution={institution}
-                  selectedRole={selectedRole}
-                  onSubmit={handleSubmit(onSubmit)}
-                  onFormStructureChange={setFormStructure}
-                />
-                {serverError && (
-                  <p className="text-red-500 text-sm text-center">{serverError}</p>
-                )}
-              </div>
-            )}
-
-            {currentStep === 2 && <SuccessStep institution={institution} />}
+              <StepperControls 
+                joinWLMutation={joinWLMutation}
+                isValid={isValid}
+                selectedRole={selectedRole}
+                handleSubmit={handleSubmit}
+                onSubmit={onSubmit}
+              />
+            </Stepper>
           </CardContent>
-      
-          <CardFooter className="flex justify-between border-t border-border pt-6">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={currentStep === 0 || joinWLMutation.isPending}
-            >
-              Back
-            </Button>
-            <Button
-              onClick={currentStep === 1 ? handleSubmit(onSubmit) : handleNext}
-              disabled={
-                (currentStep === 0 && !selectedRole) ||
-                (currentStep === 1 && (!isValid || joinWLMutation.isPending)) ||
-                currentStep === steps.length - 1
-              }
-            >
-              {joinWLMutation.isPending ? (
-                <span className="animate-pulse">Submitting...</span>
-              ) : currentStep === steps.length - 2 ? (
-                "Submit"
-              ) : (
-                "Next"
-              )}
-            </Button>
-          </CardFooter>
         </Card>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function StepperControls({ joinWLMutation, isValid, selectedRole, handleSubmit, onSubmit }) {
+  const { prevStep, nextStep, activeStep } = useStepper();
+
+  // Handle successful submission
+  useEffect(() => {
+    if (joinWLMutation.isSuccess) {
+      nextStep();
+      joinWLMutation.reset();
+    }
+  }, [joinWLMutation.isSuccess, nextStep, joinWLMutation]);
+
+  return (
+    <CardFooter className="flex justify-between border-t border-border pt-6">
+      <Button
+        variant="outline"
+        onClick={prevStep}
+        disabled={activeStep === 0 || joinWLMutation.isPending}
+      >
+        Back
+      </Button>
+      <Button
+        onClick={activeStep === 1 ? handleSubmit(onSubmit) : nextStep}
+        disabled={
+          (activeStep === 0 && !selectedRole) ||
+          (activeStep === 1 && (!isValid || joinWLMutation.isPending)) ||
+          activeStep === steps.length - 1
+        }
+      >
+        {joinWLMutation.isPending ? (
+          <span className="animate-pulse">Submitting...</span>
+        ) : activeStep === steps.length - 2 ? (
+          "Submit"
+        ) : (
+          "Next"
+        )}
+      </Button>
+    </CardFooter>
   );
 }

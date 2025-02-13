@@ -12,41 +12,16 @@ const fetchFormFields = async (institutionId, selectedRole) => {
   return response.data
 }
 
-export function JoinForm({ control, institution, selectedRole, onSubmit, onFormStructureChange }) {
+export function JoinForm({ control, institution, selectedRole, onSubmit }) {
   // Fetch form fields using React Query
-  const {
-    data: formFields,
-    isLoading,
-    isError,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["formFields", institution?.inst_id, selectedRole], // Unique key for caching
-    queryFn: () => fetchFormFields(institution?.inst_id, selectedRole), // Use the external function
-    enabled: !!institution?.inst_id && !!selectedRole, // Only fetch if institution and role are available
-    retry: false, // Disable automatic retries
-    onSuccess: (data) => {
-      // Pass the form structure back to the parent
-      onFormStructureChange(data)
-    },
-  })
+  const { data: formFields } = useQuery({
+    queryKey: ["formFields", institution?.inst_id, selectedRole],
+    queryFn: () => fetchFormFields(institution?.inst_id, selectedRole),
+    enabled: !!institution?.inst_id && !!selectedRole,
+    retry: false,
+  });
 
-  // Loading state
-  if (isLoading) {
-    return <div>Loading form fields...</div>
-  }
 
-  // Error state with "Try Again" button
-  if (isError) {
-    return (
-      <div className="space-y-4">
-        <div className="text-red-500">Error: {error.message}</div>
-        <Button onClick={() => refetch()}>Try Again</Button>
-      </div>
-    )
-  }
-
-  // Render the form fields
   return (
     <form onSubmit={onSubmit} className="space-y-6">
       {formFields?.map((field) => (
@@ -86,14 +61,11 @@ export function JoinForm({ control, institution, selectedRole, onSubmit, onFormS
                   />
                 )}
               />
-              {field.description && (
-                <p className="text-xs text-muted-foreground">{field.description}</p>
-              )}
+              
             </>
           )}
         </div>
       ))}
-      <Button type="submit">Submit</Button>
     </form>
   )
 }
