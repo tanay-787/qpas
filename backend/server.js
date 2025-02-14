@@ -1,8 +1,6 @@
 import express from 'express';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { createWriteStream } from 'fs';
-import morgan from 'morgan';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -13,7 +11,6 @@ import waitingLobbyRoutes from './routes/waitingLobbyRoutes.js';
 const app = express();
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const logFile = join(__dirname, 'server.log');
 
 app.use(compression());
 
@@ -45,17 +42,11 @@ app.get('*', (req, res) => {
   res.sendFile(join(__dirname, '../frontend/dist', 'index.html'));
 });
 
-//Implementing FIle Logger
-app.use(morgan(':method - :url - :date - :response-time ms'));
-app.use(
-  morgan(':method - :url - :date - :response-time ms', {
-    stream: createWriteStream(logFile, { flags: 'a' }),
-  })
-);
 
 
 
   app.listen(process.env.PORT || 3000, () => {
     console.log(`Server is running on port ${process.env.PORT || 3000}`);
   });
+
 

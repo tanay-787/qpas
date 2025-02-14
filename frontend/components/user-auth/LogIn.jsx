@@ -6,13 +6,17 @@ import { Label } from "@/components/ui/label"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { FcGoogle } from "react-icons/fc"
 import { Loader2, Mail } from "lucide-react"
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useToast } from '@/hooks/use-toast'
 
 export default function LogIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const { signInWithEmail, signInWithGoogle } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+  const { toast } = useToast()
 
   const handleSubmit = async (e) => {
     e.preventDefault()

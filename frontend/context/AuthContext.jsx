@@ -12,7 +12,6 @@ import { doc, getDoc, setDoc } from 'firebase/firestore'
 import { auth, firestore } from '../firebase.config'
 import { useToast } from '@/hooks/use-toast'
 import { useNavigate } from 'react-router-dom'
-import { Button } from '@/components/ui/button'
 
 const AuthContext = createContext(null)
 
@@ -172,6 +171,8 @@ export default function AuthProvider({ children }) {
     try {
       await signOut(auth)
       setIsLoggedIn(false)
+      setUser(null)
+      navigate('/')
       toast({
         title: "Success",
         description: "Successfully signed out",

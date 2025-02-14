@@ -88,13 +88,14 @@ export default function AdminDashboard() {
           </div>
     
           <Tabs defaultValue="requests" className="space-y-6">
+            <div className="overflow-x-auto">
             <TabsList>
               <TabsTrigger value="requests">Waiting Lobby ({waitingLobbyRequests?.length || 0})</TabsTrigger>
               <TabsTrigger value="members">Members ({members?.teacher_list?.length || 0})</TabsTrigger>
               <TabsTrigger value="application-form">Application Form</TabsTrigger>
               <TabsTrigger value="profile">Institution Settings</TabsTrigger>
             </TabsList>
-    
+            </div>
             <TabsContent value="requests">
               <WaitingLobbyTab
                 requests={waitingLobbyRequests}
