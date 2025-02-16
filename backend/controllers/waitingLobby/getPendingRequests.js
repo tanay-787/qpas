@@ -5,7 +5,8 @@ import { db } from '../../config/firebase.js';
  */
 const getPendingRequests = async (req, res) => {
     const { institution_id } = req.params;
-  
+    const targettedRole = req.path.includes('teachers') ? 'teacher' : 'student';
+    
     try {
       const requests = [];
       const snapshot = await db
@@ -13,6 +14,7 @@ const getPendingRequests = async (req, res) => {
         .doc(institution_id)
         .collection('waiting_lobby')
         .where('status', '==', 'pending')
+        .where('role_requested', '==', targettedRole)
         .get();
 
       // Get all requests and their user data
@@ -28,7 +30,7 @@ const getPendingRequests = async (req, res) => {
         // Return combined request and user data
         return {
           ...requestData,
-          user: userDoc.exists ? userDoc.data() : null
+          user: userDoc.exists ? userDoc.data() : null,
         };
       });
 

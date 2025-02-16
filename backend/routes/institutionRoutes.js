@@ -7,9 +7,9 @@ import { getInstitutionByUid } from '../controllers/institution/getInstitutionBy
 import { getInstitutionByMemberOf } from '../controllers/institution/getInstitutionByMemberOf.js';
 import { getAllInstitutions } from '../controllers/institution/getAllInstitutions.js';
 import { setFormDefinition, getFormDefinition } from '../controllers/verification-forms/index.js';
-import { getTeachers } from '../controllers/institution/getTeachers.js';
 
 const router = Router();
+
 
 // Public: Fetch all institutions
 router.get('/', getAllInstitutions);
@@ -17,14 +17,13 @@ router.get('/', getAllInstitutions);
 // Admin-only: Create an institution
 router.post('/create', verifyToken, extractUserData, createInstitution);
 
-// Admin-only: Set form definition for an institution
-router.post('/:institution_id/form-definition', verifyToken, extractUserData, roleCheck('admin'), setFormDefinition);
+//Admin-only: Update institution(Add update controller)
+router.patch('/update', verifyToken, extractUserData, roleCheck('admin'))
 
-// Teacher-only: Get form definition for an institution
-router.get('/:institution_id/teacher/form', verifyToken, extractUserData, getFormDefinition);
 
-// Student-only: Get form definition for an institution
-router.get('/:institution_id/student/form', verifyToken, extractUserData, getFormDefinition);
+
+
+// INSTITUTION RETRIEVAL ROUTES:
 
 // Admin-only: Fetch institution by UID
 router.get('/by-uid', verifyToken, extractUserData, roleCheck('admin'), getInstitutionByUid);
@@ -32,13 +31,32 @@ router.get('/by-uid', verifyToken, extractUserData, roleCheck('admin'), getInsti
 //Members-only
 router.get('/by-memberOf', verifyToken, extractUserData, getInstitutionByMemberOf );
 
-//Admin-only: Update institution(Add update controller)
-router.patch('/update', verifyToken, extractUserData, roleCheck('admin'))
 
-//Admin-only: Get Teachers
-router.get('/:institution_id/members/teachers', verifyToken, extractUserData, roleCheck('admin'), getTeachers)
 
-//Admin-only: Get Students
-router.get('/:institution_id/members/students', verifyToken, extractUserData, roleCheck('admin'))
-  
+
+// FORM HANDLING ROUTES:
+
+// Admin-only: Set form definition for an institution
+router.post('/:institution_id/form-definition', verifyToken, extractUserData, roleCheck('admin'), setFormDefinition);
+
+// Get form definition for an institution(teacher)
+router.get('/:institution_id/teacher/form', verifyToken, extractUserData, getFormDefinition);
+
+// Get form definition for an institution(student)
+router.get('/:institution_id/student/form', verifyToken, extractUserData, getFormDefinition);
+
+
+
+
+
+
+
+// To BE IMPLEMENTED
+// // Get Teachers (Adminaccess)
+// router.get('/:institution_id/members/teachers', verifyToken, extractUserData, roleCheck('admin'), getTeachers);
+
+// // Get Students (Admin/Teacher access)
+// router.get('/:institution_id/members/students', verifyToken, extractUserData, roleCheck('teacher'), getStudents);
+
+
 export default router;

@@ -12,6 +12,7 @@ import FormStructureBuilder from "./components/FormStructureBuilder";
 import NavBar from "./components/shared-components/NavBar";
 import { useLocation } from "react-router-dom";
 import AnimatedContent from "@/components/ui/animated-content";
+import TeacherDashboard from "./components/TeacherDashboard";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +52,7 @@ export default function App() {
                 <Route path="/:institution_id/admin/dashboard" element={<AdminDashboard />} />
 
                 {/* Teacher Routes */}
-                <Route path="/:institution_id/teacher/dashboard" element={null} />
+                <Route path="/teacher/dashboard" element={<TeacherDashboard/>} />
 
                 {/* Student Routes */}
                 <Route path="/student/dashboard" element={null} />

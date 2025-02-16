@@ -18,9 +18,9 @@ router.get('/:institution_id/teachers', verifyToken, extractUserData, roleCheck(
 router.get('/:institution_id/students', verifyToken, extractUserData, roleCheck('teacher'), getPendingRequests);
 
 // Approve or reject a teacher's request (Admin only)
-router.patch('/:institution_id/requests/:request_id/:action', verifyToken, extractUserData, roleCheck('admin'), updateRequestStatus);
+router.patch('/:institution_id/teachers/:request_id/:action', verifyToken, extractUserData, roleCheck('admin'), updateRequestStatus);
 
 // Approve or reject a student's request (Teacher only)
-router.patch('/:institution_id/students/:id', verifyToken, extractUserData, roleCheck('teacher'), updateRequestStatus);
+router.patch('/:institution_id/students/:request_id/:action', verifyToken, extractUserData, roleCheck('teacher'), updateRequestStatus);
 
 export default router;

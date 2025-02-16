@@ -1,19 +1,9 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, UserCheck, UserX, Pencil, Trash2 } from "lucide-react";
 import { useInstitution } from "../context/InstitutionContext";
 import { useAuth } from "../context/AuthContext";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Label } from "@/components/ui/label";
-import FormBuilder from "./FormStructureBuilder";
 import axios from "axios";
 
 import WaitingLobbyTab from "./admin-tabs/WaitingLobbyTab";
@@ -21,7 +11,9 @@ import MembersTab from "./admin-tabs/MembersTab";
 import ApplicationFormTab from "./admin-tabs/ApplicationFormTab";
 import InstitutionProfileTab from "./admin-tabs/InstitutionProfileTab";
 
-export default function AdminDashboard() {
+//Implement SideBar here
+
+export default function TeacherDashboard() {
     const { user } = useAuth();
     const { institution, updateInstitution } = useInstitution();
     const [expandedRequestId, setExpandedRequestId] = useState(null); // Track expanded row
@@ -34,7 +26,7 @@ export default function AdminDashboard() {
     } = useQuery({
         queryKey: ["waiting-lobby-requests", institution?.inst_id],
         queryFn: async () => {
-            const response = await axios.get(`/api/waiting-lobby/${institution.inst_id}/teachers`);
+            const response = await axios.get(`/api/waiting-lobby/${institution.inst_id}/students`);
             return response.data;
         },
         enabled: !!(institution?.inst_id)
@@ -48,7 +40,7 @@ export default function AdminDashboard() {
     } = useQuery({
         queryKey: ['institution-members', institution?.inst_id],
         queryFn: async () => {
-          const response = await axios.get(`/api/institutions/${institution.inst_id}/members/teachers`);
+          const response = await axios.get(`/api/institutions/${institution.inst_id}/members/students`);
           return response.data;
       },
         enabled: !!(institution?.inst_id)
@@ -57,7 +49,7 @@ export default function AdminDashboard() {
     // Mutation for request actions
     const { mutate: handleRequestAction } = useMutation({
         mutationFn: async ({ requestId, action }) => {
-            const response = await axios.patch(`/api/waiting-lobby/${institution.inst_id}/teachers/${requestId}/${action}`);
+            const response = await axios.patch(`/api/waiting-lobby/${institution.inst_id}/students/${requestId}/${action}`);
             return response.data;
         },
         onSuccess: () => refetchRequests() && refetchMembers()
@@ -80,7 +72,7 @@ export default function AdminDashboard() {
     return (
         <div className="container mx-auto p-6 space-y-6">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <h1 className="text-3xl font-bold">Teacher Dashboard</h1>
             <div className="flex items-center space-x-4">
               <Badge variant="outline">Institution: {institution?.name}</Badge>
               <Badge variant="outline">Admin: {user?.displayName}</Badge>
@@ -90,9 +82,9 @@ export default function AdminDashboard() {
           <Tabs defaultValue="requests" className="space-y-6">
             <div className="overflow-x-auto">
             <TabsList>
+              <TabsTrigger value="application-form">QuestionPapers</TabsTrigger>
               <TabsTrigger value="requests">Waiting Lobby ({waitingLobbyRequests?.length || 0})</TabsTrigger>
-              <TabsTrigger value="members">Members ({members?.teacher_list?.length || 0})</TabsTrigger>
-              <TabsTrigger value="application-form">Application Form</TabsTrigger>
+              <TabsTrigger value="members">Members ({members?.student_list?.length || 0})</TabsTrigger>
               <TabsTrigger value="profile">Institution Settings</TabsTrigger>
             </TabsList>
             </div>
