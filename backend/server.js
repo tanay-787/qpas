@@ -26,6 +26,7 @@ app.use(cookieParser());
 //API Routes
 app.use('/api/institutions', institutionRoutes);
 app.use('/api/waiting-lobby', waitingLobbyRoutes);
+app.use('/api/question-papers', questionPaperRoutes)
 
 //keep alive mechanism
 app.get('/health', (req, res) => {
