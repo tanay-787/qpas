@@ -1,4 +1,4 @@
-import { db, auth } from '../../config/firebase.js'; // assuming you're using Firebase Admin SDK for authentication
+import { db } from "../../config/firebase.js"; // assuming you're using Firebase Admin SDK for authentication
 
 /**
  * Create a new institution
@@ -25,10 +25,10 @@ const createInstitution = async (req, res) => {
       description: description || "",
     });
 
-    const userRef = db.collection('users').doc(userId);
+    const userRef = db.collection("users").doc(userId);
 
     await userRef.update({
-      role: 'admin', // Assign 'admin' role
+      role: "admin", // Assign 'admin' role
       member_of: institutionRef.id, // Add the institution to the 'member_of' field
     });
 
