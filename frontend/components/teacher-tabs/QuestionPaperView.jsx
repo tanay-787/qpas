@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Search } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,6 +9,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 export default function QuestionPaperView({
   questionPapers,
@@ -15,44 +17,73 @@ export default function QuestionPaperView({
   refetch,
 }) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedSubject, setSelectedSubject] = useState("");
-  const [selectedDegree, setSelectedDegree] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [selectedDegree, setSelectedDegree] = useState(null);
+  const [selectedExaminationType, setSelectedExaminationType] = useState(null);
 
-  if (loading) return <p>Loading...</p>;
-  if (!questionPapers || questionPapers.length === 0)
+  if (loading) {
+    return (
+      <div className="p-4 text-center">
+        <p className="text-lg font-semibold">Loading question papers...</p>
+      </div>
+    );
+  }
+
+  if (!questionPapers || questionPapers.length === 0) {
     return <p>No question papers available.</p>;
+  }
 
   const subjects = [...new Set(questionPapers.map((paper) => paper.subject))];
   const degrees = [...new Set(questionPapers.map((paper) => paper.degree))];
+  const examinationTypes = [
+    ...new Set(questionPapers.map((paper) => paper.examinationType)),
+  ];
 
   const filteredPapers = questionPapers.filter(
     (paper) =>
       (paper.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         paper.subject.toLowerCase().includes(searchQuery.toLowerCase())) &&
       (selectedSubject ? paper.subject === selectedSubject : true) &&
-      (selectedDegree ? paper.degree === selectedDegree : true),
+      (selectedDegree ? paper.degree === selectedDegree : true) &&
+      (selectedExaminationType
+        ? paper.examinationType === selectedExaminationType
+        : true),
   );
 
   return (
-    <div className="p-4">
-      {/* Search & Filters */}
-      <div className="flex flex-wrap gap-4 mb-4">
+    <div className="p-6">
+      {/* Heading & Subheading */}
+      <div className="text-center mb-6">
+        <h1 className="text-4xl font-bold">Search Question Papers</h1>
+        <p className="text-gray-600 mt-2">
+          Browse and filter through available question papers to find what you
+          need.
+        </p>
+      </div>
+
+      {/* Search Input */}
+      <div className="mb-4 flex items-center w-full md:w-2/3 mx-auto relative">
+        <Search
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          size={20}
+        />
         <Input
           type="text"
           placeholder="Search by name or subject..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full md:w-1/3"
+          className="w-full pl-10"
         />
+      </div>
 
+      {/* Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 w-full md:w-2/3 mx-auto">
         <Select
           onValueChange={(value) =>
             setSelectedSubject(value === "all" ? null : value)
           }
         >
-          <SelectTrigger className="w-full md:w-1/4">
-            {selectedSubject ? selectedSubject : "All Subjects"}
-          </SelectTrigger>
+          <SelectTrigger>{selectedSubject || "All Subjects"}</SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Subjects</SelectItem>
             {subjects.map((subject) => (
@@ -68,9 +99,7 @@ export default function QuestionPaperView({
             setSelectedDegree(value === "all" ? null : value)
           }
         >
-          <SelectTrigger className="w-full md:w-1/4">
-            {selectedDegree ? selectedDegree : "All Degrees"}
-          </SelectTrigger>
+          <SelectTrigger>{selectedDegree || "All Degrees"}</SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Degrees</SelectItem>
             {degrees.map((degree) => (
@@ -80,15 +109,37 @@ export default function QuestionPaperView({
             ))}
           </SelectContent>
         </Select>
+
+        <Select
+          onValueChange={(value) =>
+            setSelectedExaminationType(value === "all" ? null : value)
+          }
+        >
+          <SelectTrigger>
+            {selectedExaminationType || "All Examination Types"}
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Examination Types</SelectItem>
+            {examinationTypes.map((examType) => (
+              <SelectItem key={examType} value={examType}>
+                {examType}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <Button
+          variant="outline"
+          className="flex items-center justify-center"
           onClick={() => {
             refetch();
             setSelectedDegree(null);
             setSelectedSubject(null);
-            setSelectedDegree(null);
+            setSelectedExaminationType(null);
+            setSearchQuery("");
           }}
         >
-          Refetch Papers
+          <ReloadIcon className="mr-2" /> Refetch
         </Button>
       </div>
 
