@@ -6,46 +6,55 @@ import {
   validateQuestionPaper,
   validateFile,
 } from "../middlewares/validateQuestionPaper.js";
+
+// Import all controllers
 import {
   createQuestionPaper,
   uploadMiddleware,
 } from "../controllers/question-papers/createQuestionPaper.js";
 import { getAllQuestionPapers } from "../controllers/question-papers/getAllQuestionPapers.js";
+import { getTeacherQuestionPapers } from "../controllers/question-papers/getTeacherQuestionPapers.js";
+import { updateQuestionPaper } from "../controllers/question-papers/updateQuestionPaper.js";
+import { deleteQuestionPaper } from "../controllers/question-papers/deleteQuestionPaper.js";
+import { updateQuestionPaperAccess } from "../controllers/question-papers/updateQuestionPaperAccess.js";
 
 const router = Router();
 
-// Fetch all question papers for an institution (Teacher only)
+// Public routes
 router.get("/public", getAllQuestionPapers);
 
-// Fetch all question papers for an institution
-router.get("/:institution_id", verifyToken, extractUserData);
+// Protected routes - require authentication
+router.use(verifyToken);
+router.use(extractUserData);
+
+// Get all question papers for an institution
+router.get("/:institution_id", getAllQuestionPapers);
+
+// Get teacher's question papers
+router.get("/:institution_id/teacher", roleCheck("teacher"), getTeacherQuestionPapers);
 
 // Create a new question paper
 router.post(
   "/:institution_id/create",
-  verifyToken,
-  extractUserData,
   roleCheck("teacher"),
   uploadMiddleware,
   validateFile,
   validateQuestionPaper,
-  createQuestionPaper,
+  createQuestionPaper
 );
 
+// Update question paper
+router.put(
+  "/:institution_id/update/:qp_id",
+  roleCheck("teacher"),
+  updateQuestionPaper
+);
+
+// Delete question paper
 router.delete(
   "/:institution_id/delete/:qp_id",
-  verifyToken,
-  extractUserData,
   roleCheck("teacher"),
+  deleteQuestionPaper
 );
-
-router.patch(
-  "/:institution_id/update/:qp_id",
-  verifyToken,
-  extractUserData,
-  roleCheck("teacher"),
-);
-
-//add docURl to questionpaper
 
 export default router;

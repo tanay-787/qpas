@@ -1,0 +1,32 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Match any file in the question-papers directory
+    match /question-papers/{institutionId}/{fileName} {
+      // Allow read if:
+      // 1. User is authenticated AND
+      // 2. User belongs to the same institution OR is an admin
+      allow read: if 
+        request.auth != null &&
+        (
+          // Check if user belongs to the institution
+          exists(/databases/$(database.name)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database.name)/documents/users/$(request.auth.uid)).data.institution_id == institutionId ||
+          // Or check if user is an admin
+          get(/databases/$(database.name)/documents/users/$(request.auth.uid)).data.role == 'admin'
+        );
+      
+      // Allow write if:
+      // 1. User is authenticated AND
+      // 2. User is either an admin or a teacher in the same institution
+      allow write: if 
+        request.auth != null &&
+        exists(/databases/$(database.name)/documents/users/$(request.auth.uid)) &&
+        (
+          get(/databases/$(database.name)/documents/users/$(request.auth.uid)).data.role in ['admin', 'teacher'] &&
+          get(/databases/$(database.name)/documents/users/$(request.auth.uid)).data.institution_id == institutionId
+        );
+    }
+  }
+}

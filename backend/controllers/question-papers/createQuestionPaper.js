@@ -26,10 +26,9 @@ export const createQuestionPaper = async (req, res) => {
     const filename = `${Date.now()}_${name}`;
 
     // Upload file to Firebase Storage using the Admin SDK
-    const bucket = storage.bucket(); // Get the storage bucket
-    const fileRef = bucket.file(
-      `question-papers/${institution_id}/${filename}`,
-    );
+    const bucket = storage.bucket();
+    const filePath = `question-papers/${institution_id}/${filename}`;
+    const fileRef = bucket.file(filePath);
 
     // Create a write stream
     const stream = fileRef.createWriteStream({
@@ -46,9 +45,6 @@ export const createQuestionPaper = async (req, res) => {
       stream.on("error", reject);
     });
 
-    // Get the public URL of the uploaded file
-    const documentUrl = `https://storage.googleapis.com/${process.env.FIREBASE_STORAGE_BUCKET}/question-papers/${institution_id}/${filename}`;
-
     // Save document data to Firestore
     const qpRef = db.collection("questionPapers").doc();
     await qpRef.set({
@@ -58,15 +54,14 @@ export const createQuestionPaper = async (req, res) => {
       degree,
       examinationType,
       accessType,
-      documentUrl,
+      documentPath: filePath,
       createdBy: authorId,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      belongsTo: institution_id,
     });
 
     return res.status(201).json({
-      success: true,
       message: "Question paper created successfully",
-      data: { id: qpRef.id },
     });
   } catch (error) {
     console.error("Error creating question paper:", error);

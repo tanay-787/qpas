@@ -16,7 +16,7 @@ export default defineConfig({
         target:
           process.env.NODE_ENV === "production"
             ? "https://cleat-central.onrender.com"
-            : "http://localhost:3000",
+            : "http://localhost:7878",
         changeOrigin: true,
         secure: true,
       },
