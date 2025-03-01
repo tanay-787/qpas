@@ -4,9 +4,12 @@ import { fileURLToPath } from "url";
 import compression from "compression";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+
+//Routes
 import institutionRoutes from "./routes/institutionRoutes.js";
 import waitingLobbyRoutes from "./routes/waitingLobbyRoutes.js";
 import questionPaperRoutes from "./routes/questionPaperRoutes.js";
+import memberRoutes from "./routes/memberRoutes.js";
 
 const app = express();
 
@@ -27,6 +30,7 @@ app.use(cookieParser());
 app.use("/api/institutions", institutionRoutes);
 app.use("/api/waiting-lobby", waitingLobbyRoutes);
 app.use("/api/question-papers", questionPaperRoutes);
+app.use("/api/members", memberRoutes)
 
 //keep alive mechanism
 app.get("/health", (req, res) => {

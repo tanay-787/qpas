@@ -41,7 +41,7 @@ const MenuContent = () => (
       Home
     </a>
     <a href="#" className="block text-lg hover:underline">
-      Catalogue
+      Browse
     </a>
     <a href="#" className="block text-lg hover:underline">
       Blog
@@ -86,7 +86,7 @@ export default function NavBar() {
             Home
           </a>
           <a href="/browse-institutions" className="text-md hover:underline">
-            Catalogue
+            Browse
           </a>
           <a href="#" className="text-md hover:underline">
             Blog

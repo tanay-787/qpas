@@ -48,7 +48,7 @@ export default function AdminDashboard() {
     } = useQuery({
         queryKey: ['institution-members', institution?.inst_id],
         queryFn: async () => {
-          const response = await axios.get(`/api/institutions/${institution.inst_id}/members/teachers`);
+          const response = await axios.get(`/api/members/${institution?.inst_id}/teachers`);
           return response.data;
       },
         enabled: !!(institution?.inst_id)
@@ -66,16 +66,11 @@ export default function AdminDashboard() {
     // Mutation for member actions
     const { mutate: handleMemberAction } = useMutation({
         mutationFn: async ({ userId, action }) => {
-            const response = await axios.post(`/api/members/${userId}/${action}`);
+            const response = await axios.post(`/api/members/${institution?.inst_id}/${userId}/${action}`);
             return response.data;
         },
         onSuccess: () => refetchMembers()
     });
-
-    // Toggle expanded row
-    const toggleExpand = (requestId) => {
-        setExpandedRequestId(expandedRequestId === requestId ? null : requestId);
-    };
 
     return (
         <div className="container mx-auto p-6 space-y-6">
@@ -91,7 +86,7 @@ export default function AdminDashboard() {
             <div className="overflow-x-auto">
             <TabsList>
               <TabsTrigger value="requests">Waiting Lobby ({waitingLobbyRequests?.length || 0})</TabsTrigger>
-              <TabsTrigger value="members">Members ({members?.teacher_list?.length || 0})</TabsTrigger>
+              <TabsTrigger value="members">Members ({members?.length || 0})</TabsTrigger>
               <TabsTrigger value="application-form">Application Form</TabsTrigger>
               <TabsTrigger value="profile">Institution Settings</TabsTrigger>
             </TabsList>
@@ -106,7 +101,7 @@ export default function AdminDashboard() {
     
             <TabsContent value="members">
               <MembersTab
-                members={members?.teacher_list }
+                members={members}
                 loading={loadingMembers}
                 onMemberAction={handleMemberAction}
               />

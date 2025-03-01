@@ -6,12 +6,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function MembersTab({ members, loading, onMemberAction }) {
-    console.log(members);
+export default function ManageStudents({ students, loading, onStudentAction }) {
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Current Members</CardTitle>
+                <CardTitle>Current Students</CardTitle>
             </CardHeader>
             <CardContent>
                 <ScrollArea className="h-[100vh] w-100">
@@ -32,23 +31,23 @@ export default function MembersTab({ members, loading, onMemberAction }) {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {members?.map(member => (
-                                    <TableRow key={member.uid}>
-                                        <TableCell>{member.displayName}</TableCell>
+                                {students?.map(student => (
+                                    <TableRow key={student.uid}>
+                                        <TableCell>{student.displayName}</TableCell>
                                         <TableCell>
                                             <Badge variant="outline">
-                                                {member.role}
+                                                {student.role}
                                             </Badge>
                                         </TableCell>
                                         <TableCell>
-                                            {member.email}
+                                            {student.email}
                                         </TableCell>
                                         <TableCell className="flex space-x-2">
                                             <Button
                                                 variant="secondary"
                                                 size="sm"
-                                                onClick={() => onMemberAction({
-                                                    userId: member.uid,
+                                                onClick={() => onStudentAction({
+                                                    userId: student.uid,
                                                     action: 'change-role'
                                                 })}
                                             >
@@ -57,9 +56,9 @@ export default function MembersTab({ members, loading, onMemberAction }) {
                                             </Button>
                                             <Button
                                                 variant="destructive"
-                                                size="sm"
-                                                onClick={() => onMemberAction({
-                                                    userId: member.uid,
+                                                size="sm"       
+                                                onClick={() => onStudentAction({
+                                                    userId: student.uid,
                                                     action: 'remove'
                                                 })}
                                             >

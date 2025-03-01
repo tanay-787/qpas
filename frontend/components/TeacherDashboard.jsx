@@ -13,6 +13,8 @@ import QuestionPaperManage from "./teacher-tabs/QuestionPaperManage";
 import InstitutionMembers from "./admin-tabs/InstitutionMembers";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import TDSidebar from "./TDSidebar";
+import WaitingLobby from "./teacher-tabs/WaitingLobby";
+import ManageStudents from "./teacher-tabs/ManageStudents";
 
 //Implement SideBar here
 
@@ -39,14 +41,14 @@ export default function TeacherDashboard() {
 
   // Fetch current members
   const {
-    data: members,
-    isLoading: loadingMembers,
-    refetch: refetchMembers,
+    data: students,
+    isLoading: loadingStudents,
+    refetch: refetchStudents,
   } = useQuery({
-    queryKey: ["institution-members", institution?.inst_id],
+    queryKey: ["institution-members-students", institution?.inst_id],
     queryFn: async () => {
       const response = await axios.get(
-        `/api/institutions/${institution.inst_id}/members/students`,
+        `/api/members/${institution.inst_id}/students`,
       );
       return response.data;
     },
@@ -61,16 +63,16 @@ export default function TeacherDashboard() {
       );
       return response.data;
     },
-    onSuccess: () => refetchRequests() && refetchMembers(),
+    onSuccess: () => refetchRequests() && refetchStudents(),
   });
 
   // Mutation for member actions
-  const { mutate: handleMemberAction } = useMutation({
+  const { mutate: handleStudentAction } = useMutation({
     mutationFn: async ({ userId, action }) => {
-      const response = await axios.post(`/api/members/${userId}/${action}`);
+      const response = await axios.post(`/api/members/${institution?.inst_id}/${userId}/${action}`);
       return response.data;
     },
-    onSuccess: () => refetchMembers(),
+    onSuccess: () => refetchStudents(),
   });
 
   const {
@@ -83,7 +85,8 @@ export default function TeacherDashboard() {
       const response = await axios.get(`/api/question-papers/public`);
       return response.data.questionPapers;
     },
-    queryKey: ["questionPapers"],
+    queryKey: ["questionPapers", institution?.inst_id],
+    enabled: !!institution?.inst_id,
   });
 
   const renderContent = () => {
@@ -91,7 +94,7 @@ export default function TeacherDashboard() {
     switch (activeKey) {
       case "waiting-lobby":
         return (
-          <WaitingLobbyTab
+          <WaitingLobby
             requests={waitingLobbyRequests}
             loading={loadingRequests}
             onRequestAction={handleRequestAction}
@@ -110,7 +113,7 @@ export default function TeacherDashboard() {
       case "manage-qp":
         return <QuestionPaperManage />;
       case "institution-members":
-        return <InstitutionMembers />;
+        return <ManageStudents students={students} loading={loadingStudents} onStudentAction={handleStudentAction} />;
       default:
         return null;
     }

@@ -25,7 +25,7 @@ const fetchInstitution = async (user) => {
     return response.data;
   } catch (error) {
     console.error("Failed to fetch institution", error);
-    throw new Error('Failed to fetch institution');
+    throw error;
   }
 };
 
@@ -96,7 +96,21 @@ export function InstitutionProvider({ children }) {
     if (isInstitutionFetched) {
       setInstitution(institutionData);
     }
+    
+    
   }, [isInstitutionFetched, institutionData]);
+
+  useEffect(() => {
+    if(isInstitutionError){
+      toast({
+        title: "Failed to fetch your institution details",
+        description: `${institutionError.response?.data?.message}`,
+        variant: 'destructive'
+      })
+    }
+  },[isInstitutionError, institutionError])
+  
+
 
   const handleRouting = (user, institution) => {
     if (user && institution) {
@@ -169,6 +183,7 @@ export function InstitutionProvider({ children }) {
     },
     onError: (error) => {
       console.error("Failed to create institution:", error);
+      
     },
   });
 

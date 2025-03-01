@@ -13,6 +13,7 @@ import NavBar from "./components/shared-components/NavBar";
 import { useLocation } from "react-router-dom";
 import AnimatedContent from "@/components/ui/animated-content";
 import TeacherDashboard from "./components/TeacherDashboard";
+import { TestUI } from '@/components/test-ui'
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,9 @@ export default function App() {
               {!isAuthRoute && <NavBar />}
 
               <Routes>
+                {/* For UI testing */}
+                <Route path="/test-ui" element={<TestUI />} />
+
                 {/* Auth Routes */}
                 <Route path="/signup" element={<SignUp />} />
                 <Route path="/login" element={<LogIn />} />
