@@ -1,0 +1,66 @@
+
+/* Violet Blue */
+@layer base {
+    :root {
+      --background: 238.73 0% 100%;
+      --foreground: 215.17 22.14% 25.69%;
+      --muted: 225 15.38% 94.9%;
+      --muted-foreground: 102 0% 43.85%;
+      --popover: 282 0% 100%;
+      --popover-foreground: 215.17 22.14% 25.69%;
+      --card: 282 0% 100%;
+      --card-foreground: 215.17 22.14% 25.69%;
+      --border: 243 15% 89%;
+      --input: 282 5% 93%;
+      --primary: 238.73 83.53% 66.67%;
+      --primary-foreground: 0 0% 100%;
+      --secondary: 225 15.38% 94.9%;
+      --secondary-foreground: 215.17 22.14% 25.69%;
+      --accent: 238.73 78.22% 85.87%;
+      --accent-foreground: 0 0% 100%;
+      --destructive: 0 84% 60%;
+      --destructive-foreground: 14 0% 98.46%;
+      --ring: 238.73 83.53% 66.67%;
+      --chart-1: 358 98% 67%;
+      --chart-2: 215 22% 25%;
+      --chart-3: 219 98% 67%;
+      --chart-4: 332 41% 65%;
+      --chart-5: 191 40% 52%;
+      --radius: 0.5rem;
+    }
+  
+    .dark {
+      --background: 282 54% 1%;
+      --foreground: 282 36% 100%;
+      --muted: 102 14% 5%;
+      --muted-foreground: 102 3% 61%;
+      --popover: 282 54% 1%;
+      --popover-foreground: 282 36% 100%;
+      --card: 282 54% 1%;
+      --card-foreground: 282 36% 100%;
+      --border: 282 5% 12%;
+      --input: 282 5% 12%;
+      --primary: 282 1% 44%;
+      --primary-foreground: 0 0% 100%;
+      --secondary: 102 1% 44%;
+      --secondary-foreground: 0 0% 100%;
+      --accent: 102 1% 44%;
+      --accent-foreground: 0 0% 100%;
+      --destructive: 14 91% 56%;
+      --destructive-foreground: 0 0% 0%;
+      --ring: 282 1% 44%;
+      --chart-1: 282 1% 44%;
+      --chart-2: 102 1% 44%;
+      --chart-3: 102 1% 44%;
+      --chart-4: 102 1% 47%;
+      --chart-5: 282 4% 44%;
+    }
+  }
+
+/* 
+Best Colors: 
+
+#FD585E
+#333F50
+#6366F1
+   */

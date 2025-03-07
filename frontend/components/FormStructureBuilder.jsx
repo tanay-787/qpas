@@ -3,7 +3,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { InputPhone } from '@/components/ui/input-phone';
+import { InputPhoneComp } from '@/components/ui/input-phone';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DateInput } from '@/components/ui/date-input';
@@ -195,11 +195,14 @@ export default function FormBuilder() {
         );
       case 'tel':
         return (
-          <InputPhone
-            disabled
+          <InputPhoneComp
+            // disabled
             placeholder={`Enter ${field.name}`}
-            className="w-full"
-            defaultCountry="IN"
+            value={field.value}
+      onChange={(value) => {
+        // Handle phone number change
+        console.log(value);
+      }}
           />
         );
       case 'textarea':

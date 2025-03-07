@@ -140,8 +140,8 @@ export default function QuestionPaperView({ questionPapers, loading, refetch }) 
 
       {/* Display Filtered Question Papers */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredPapers.length > 0 ? (
-          filteredPapers.map((paper) => (
+        {filteredPapers?.length > 0 ? (
+          filteredPapers?.map((paper) => (
             <Card key={paper.qp_id} className="group hover:shadow-lg transition-shadow duration-200 overflow-hidden">
               <CardHeader className="space-y-1">
                 <div className="flex items-start justify-between">

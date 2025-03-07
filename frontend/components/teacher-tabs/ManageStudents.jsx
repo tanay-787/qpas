@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect } from "react";
 
 export default function ManageStudents({ students, loading, onStudentAction }) {
     return (
@@ -31,7 +32,7 @@ export default function ManageStudents({ students, loading, onStudentAction }) {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {students?.map(student => (
+                                {(Array.isArray(students)) ? (students?.map(student => (
                                     <TableRow key={student.uid}>
                                         <TableCell>{student.displayName}</TableCell>
                                         <TableCell>
@@ -42,18 +43,7 @@ export default function ManageStudents({ students, loading, onStudentAction }) {
                                         <TableCell>
                                             {student.email}
                                         </TableCell>
-                                        <TableCell className="flex space-x-2">
-                                            <Button
-                                                variant="secondary"
-                                                size="sm"
-                                                onClick={() => onStudentAction({
-                                                    userId: student.uid,
-                                                    action: 'change-role'
-                                                })}
-                                            >
-                                                <Pencil className="mr-2 h-4 w-4" />
-                                                Change Role
-                                            </Button>
+                                        <TableCell className="">
                                             <Button
                                                 variant="destructive"
                                                 size="sm"       
@@ -67,7 +57,15 @@ export default function ManageStudents({ students, loading, onStudentAction }) {
                                             </Button>
                                         </TableCell>
                                     </TableRow>
-                                ))}
+                                ))) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4}>
+                                            <CardDescription className="text-center">
+                                                {students?.message}
+                                            </CardDescription>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     )}

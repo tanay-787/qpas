@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useInstitution } from "../context/InstitutionContext";
 import { useAuth } from "../context/AuthContext";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -19,8 +19,7 @@ import ManageStudents from "./teacher-tabs/ManageStudents";
 //Implement SideBar here
 
 export default function TeacherDashboard() {
-  const { user } = useAuth();
-  const { institution, updateInstitution } = useInstitution();
+  const { institution } = useInstitution();
   const [activeKey, setActiveKey] = useState("waiting-lobby");
 
   // Fetch waiting lobby requests
@@ -41,7 +40,7 @@ export default function TeacherDashboard() {
 
   // Fetch current members
   const {
-    data: students,
+    data: studentMembersData,
     isLoading: loadingStudents,
     refetch: refetchStudents,
   } = useQuery({
@@ -54,6 +53,7 @@ export default function TeacherDashboard() {
     },
     enabled: !!institution?.inst_id,
   });
+
 
   // Mutation for request actions
   const { mutate: handleRequestAction } = useMutation({
@@ -113,7 +113,7 @@ export default function TeacherDashboard() {
       case "manage-qp":
         return <QuestionPaperManage />;
       case "institution-members":
-        return <ManageStudents students={students} loading={loadingStudents} onStudentAction={handleStudentAction} />;
+        return <ManageStudents students={studentMembersData?.studentsList} loading={loadingStudents} onStudentAction={handleStudentAction} />;
       default:
         return null;
     }

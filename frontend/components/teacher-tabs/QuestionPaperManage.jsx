@@ -171,11 +171,11 @@ const QuestionPaperManage = () => {
                             <CardHeader>
                                 <div className="flex items-start justify-between gap-4">
                                     <CardTitle className="text-lg font-semibold leading-tight">{paper.name}</CardTitle>
-                                    <Badge variant={paper.accessType === "public" ? "default" : "secondary"}>
+                                    <Badge variant={paper.accessType === "public" ? "primary" : "secondary"}>
                                         {paper.accessType === "public" ? (
-                                            <LockOpen className="mr-1 h-3 w-3" />
+                                            <LockOpen className="mr-1 h-3 w-3 text-primary-foreground dark:text-primary" />
                                         ) : (
-                                            <Lock className="mr-1 h-3 w-3" />
+                                            <Lock className="mr-1 h-3 w-3 text-primary-foreground dark:text-primary" />
                                         )}
                                         {paper.accessType}
                                     </Badge>
@@ -203,10 +203,10 @@ const QuestionPaperManage = () => {
                                     </div>
                                 </div>
                             </CardContent>
-                            <CardFooter className="flex justify-end gap-2">
+                            <CardFooter className="flex p-2 justify-end gap-2 text-primary-foreground dark:text-primary">
                                 <Button
                                     asChild
-                                    variant="default"
+                                    variant="ghost"
                                     size="icon"
                                 >
                                     <a href={paper.documentUrl} target="_blank" rel="noopener noreferrer">
@@ -215,7 +215,7 @@ const QuestionPaperManage = () => {
                                 </Button>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button variant="outline" size="icon" onClick={() => setEditingPaper(paper)}>
+                                        <Button variant="ghost" size="icon" onClick={() => setEditingPaper(paper)}>
                                             <Pencil className="h-4 w-4" />
                                         </Button>
                                     </DialogTrigger>
@@ -290,7 +290,7 @@ const QuestionPaperManage = () => {
                                 </Dialog>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <Button variant="destructive" size="icon">
+                                        <Button variant="ghost" className="text-destructive" size="icon">
                                             <Trash2 className="h-4 w-4" />
                                         </Button>
                                     </AlertDialogTrigger>

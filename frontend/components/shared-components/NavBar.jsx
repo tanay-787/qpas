@@ -40,7 +40,7 @@ const MenuContent = () => (
     <a href="#" className="block text-lg hover:underline">
       Home
     </a>
-    <a href="#" className="block text-lg hover:underline">
+    <a href="/browse-institutions" className="block text-lg hover:underline">
       Browse
     </a>
     <a href="#" className="block text-lg hover:underline">

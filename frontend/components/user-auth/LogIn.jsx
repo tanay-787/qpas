@@ -60,7 +60,7 @@ export default function LogIn() {
             <div className="mt-2 text-sm text-muted-foreground">
             <Link 
               to="#" 
-              className="text-primary hover:text-primary/90 underline-offset-4 hover:underline"
+              className="text-primary-foreground hover:text-primary-foreground/90 dark:text-primary underline-offset-4 hover:underline"
             >
               Forgot your password?
             </Link>
@@ -77,12 +77,12 @@ export default function LogIn() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">
+              <span className="bg-card px-2 text-muted-foreground">
                 Or continue with
               </span>
             </div>
           </div>
-          <Button variant="outline" onClick={signInWithGoogle} className="w-full">
+          <Button variant="ghost" onClick={signInWithGoogle} className="w-full bg-muted">
             <FcGoogle className="mr-2 h-4 w-4" />
             Sign In With Google
           </Button>
@@ -92,7 +92,7 @@ export default function LogIn() {
             Don't have an account?{" "}
             <Link 
               to="/signup" 
-              className="text-primary hover:text-primary/90 underline-offset-4 hover:underline"
+              className="text-primary-foreground hover:text-primary-foreground/90 dark:text-primary underline-offset-4 hover:underline"
             >
               Sign up
             </Link>

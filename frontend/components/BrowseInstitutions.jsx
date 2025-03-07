@@ -92,7 +92,7 @@ export default function BrowseInstitutions() {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button onClick={handleCreateInstitution} className="h-12 px-6">
+                  <Button onClick={handleCreateInstitution} className=" h-12 px-6">
                     <Plus className="w-7 h-7" />
                     <p className="hidden sm:block">Create</p>
                   </Button>

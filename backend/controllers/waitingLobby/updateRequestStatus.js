@@ -5,14 +5,12 @@ import { db, admin } from '../../config/firebase.js';
  */
 const updateRequestStatus = async (req, res) => {
   const { institution_id, request_id, action } = req.params; 
-  const targettedRole = req.path.includes('teachers') ? 'teacher' : 'student';
 
   try {
     const requestRef = db
       .collection('institutions')
       .doc(institution_id)
       .collection('waiting_lobby')
-      .where('role_requested', '==', targettedRole)
       .doc(request_id);
 
     const requestDoc = await requestRef.get();

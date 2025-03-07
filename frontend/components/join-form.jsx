@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { InputPhone } from "@/components/ui/input-phone"
+import {InputPhoneComp} from "@/components/ui/input-phone"
 import { DateInput } from "@/components/ui/date-input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -43,7 +43,7 @@ export function JoinForm({ control, institution, selectedRole, onSubmit }) {
             control={control}
             rules={{ required: field.required }}
             render={({ field: { onChange, value, ...rest } }) => (
-              <InputPhone
+              <InputPhoneComp
                 {...rest}
                 value={value || ""}
                 onChange={onChange}
