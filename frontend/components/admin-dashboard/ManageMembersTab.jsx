@@ -6,8 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function MembersTab({ members, loading, onMemberAction }) {
-    console.log(members);
+export default function ManageMembersTab({ members, loading, onMemberAction }) {
+
     return (
         <Card>
             <CardHeader>

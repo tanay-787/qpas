@@ -1,20 +1,19 @@
 import { useEffect, useState } from "react";
-import { useInstitution } from "../context/InstitutionContext";
-import { useAuth } from "../context/AuthContext";
+import { useInstitution } from "../../context/InstitutionContext";
+import { useAuth } from "../../context/AuthContext";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import axios from "axios";
 
-import WaitingLobbyTab from "./admin-tabs/WaitingLobbyTab";
-import QuestionPaperView from "./teacher-tabs/QuestionPaperView";
-import QuestionPaperCreate from "./teacher-tabs/QuestionPaperCreate";
-import QuestionPaperManage from "./teacher-tabs/QuestionPaperManage";
-import InstitutionMembers from "./admin-tabs/InstitutionMembers";
+import WaitingLobbyTab from "../admin-dashboard/WaitingLobbyTab";
+import QuestionPaperView from "./QuestionPaperView";
+import QuestionPaperCreate from "./QuestionPaperCreate";
+import QuestionPaperManage from "./QuestionPaperManage";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import TDSidebar from "./TDSidebar";
-import WaitingLobby from "./teacher-tabs/WaitingLobby";
-import ManageStudents from "./teacher-tabs/ManageStudents";
+import WaitingLobby from "./StudentsWaitingLobby";
+import ManageStudents from "./ManageStudents";
 
 //Implement SideBar here
 

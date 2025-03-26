@@ -5,13 +5,12 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, Building2, Plus } from "lucide-react"
 import { useState } from "react"
-import NavBar from "./shared-components/NavBar"
 import CreateInstitutionDialog from "./create-institution-dialog"
-import { useAuth } from "../context/AuthContext"
+import { useAuth } from "../../context/AuthContext"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import axios from "axios"
-import JoinStepper from "./join-stepper"
+import JoinStepper from "../stepper-form/join-stepper"
 
 const fetchInstitutions = async () => {
   try {

@@ -17,6 +17,7 @@ import { getTeacherQuestionPapers } from "../controllers/question-papers/getTeac
 import { updateQuestionPaper } from "../controllers/question-papers/updateQuestionPaper.js";
 import { deleteQuestionPaper } from "../controllers/question-papers/deleteQuestionPaper.js";
 import { updateQuestionPaperAccess } from "../controllers/question-papers/updateQuestionPaperAccess.js";
+import { getQuestionPapersByInstitution } from "../controllers/question-papers/getQuestionPapersByInstitution.js";
 
 const router = Router();
 
@@ -28,7 +29,7 @@ router.use(verifyToken);
 router.use(extractUserData);
 
 // Get all question papers for an institution
-router.get("/:institution_id", getAllQuestionPapers);
+router.get("/:institution_id", getQuestionPapersByInstitution);
 
 // Get teacher's question papers
 router.get("/:institution_id/teacher", roleCheck("teacher"), getTeacherQuestionPapers);

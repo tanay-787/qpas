@@ -2,7 +2,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { UserPlus, GraduationCap, ChevronDown } from 'lucide-react';
-import { useAuth } from '../context/AuthContext'; // Assuming you have an auth context
+import { useAuth } from '../../context/AuthContext'; // Assuming you have an auth context
 import { useMutation } from '@tanstack/react-query';
 import axios from 'axios';
 import { useState } from 'react';

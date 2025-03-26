@@ -175,11 +175,10 @@ export function InstitutionProvider({ children }) {
 
   // Create Institution mutation
   const { mutateAsync: createInstitutionMutation, isLoading: isCreatingInstitution, error: createInstitutionError } = useMutation({
-    mutationFn: (data) => createInstitution(data),
+    mutationFn: async(data) => await createInstitution(data),
     enabled: !!(user?.uid && !user?.role),
     onSuccess: () => {
       queryClient.invalidateQueries(['institution', user?.uid]);
-      refetchInstitution();
     },
     onError: (error) => {
       console.error("Failed to create institution:", error);
@@ -226,6 +225,7 @@ export function InstitutionProvider({ children }) {
     <InstitutionContext.Provider
       value={{
         institution,
+        
         isLoading: isFetchingInstitution || isCreatingInstitution || isUpdatingInstitution,
         createInstitution: createInstitutionMutation,
         updateInstitution: updateInstitutionMutation,

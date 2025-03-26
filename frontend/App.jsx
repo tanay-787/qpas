@@ -5,15 +5,17 @@ import { InstitutionProvider } from "./context/InstitutionContext";
 import LandingPage from "./components/LandingPage";
 import SignUp from "./components/user-auth/SignUp";
 import LogIn from "./components/user-auth/LogIn";
-import AdminDashboard from "./components/AdminDashboard";
-import BrowseInstitutions from "./components/BrowseInstitutions";
+import AdminDashboard from "./components/admin-dashboard/AdminDashboard";
+import BrowseInstitutions from "./components/browse-institutions-page/BrowseInstitutions";
 import SampleDashboard from "./components/SampleDashboard";
 import FormStructureBuilder from "./components/FormStructureBuilder";
 import NavBar from "./components/shared-components/NavBar";
 import { useLocation } from "react-router-dom";
 import AnimatedContent from "@/components/ui/animated-content";
-import TeacherDashboard from "./components/TeacherDashboard";
+import TeacherDashboard from "./components/teacher-dashboard/TeacherDashboard";
+import StudentDashboard from "./components/student-dashboard/StudentDashboard";
 import { TestUI } from '@/components/test-ui'
+import MainLayout from "./components/shared-components/MainLayout";
 
 const queryClient = new QueryClient();
 
@@ -25,45 +27,35 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <InstitutionProvider>
-          <div>
-            <AnimatedContent
-              distance={100}
-              direction="vertical"
-              reverse={false}
-              config={{ tension: 50, friction: 25 }}
-              initialOpacity={0.0}
-              animateOpacity
-              scale={1.0}
-              threshold={0.1}
-            >
-              {!isAuthRoute && <NavBar />}
+          <AnimatedContent
+            distance={100}
+            direction="vertical"
+            reverse={false}
+            config={{ tension: 50, friction: 25 }}
+            initialOpacity={0.0}
+            animateOpacity
+            scale={1.0}
+            threshold={0.1}
+          >
+            <Routes>
+              {/* Auth Routes - No NavBar */}
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/login" element={<LogIn />} />
 
-              <Routes>
-                {/* For UI testing */}
-                <Route path="/test-ui" element={<TestUI />} />
-
-                {/* Auth Routes */}
-                <Route path="/signup" element={<SignUp />} />
-                <Route path="/login" element={<LogIn />} />
+              {/* Routes with NavBar */}
+              <Route element={<MainLayout />}>
                 <Route path="/" element={<LandingPage />} />
-
-                {/* User Searches for Institutions */}
                 <Route path="/browse-institutions" element={<BrowseInstitutions />} />
-
                 <Route path="/sample" element={<SampleDashboard />} />
-                {/* Admin Routes */}
                 <Route path="/institutions/:institution_id/form-builder" element={<FormStructureBuilder />} />
                 <Route path="/:institution_id/admin/dashboard" element={<AdminDashboard />} />
-
-                {/* Teacher Routes */}
                 <Route path="/teacher/dashboard" element={<TeacherDashboard/>} />
-
-                {/* Student Routes */}
-                <Route path="/student/dashboard" element={null} />
+                <Route path="/student/dashboard" element={<StudentDashboard/>} />
                 <Route path="/:institution_id/student/dashboard" element={null} />
-              </Routes>
-            </AnimatedContent>
-          </div>
+                <Route path="/test-ui" element={<TestUI />} />
+              </Route>
+            </Routes>
+          </AnimatedContent>
         </InstitutionProvider>
       </AuthProvider>
     </QueryClientProvider>

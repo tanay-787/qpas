@@ -1,30 +1,21 @@
+// Hooks & utilities
 import { useState } from "react";
-import { ChevronDown, ChevronUp, UserCheck, UserX, Pencil, Trash2 } from "lucide-react";
-import { useInstitution } from "../context/InstitutionContext";
-import { useAuth } from "../context/AuthContext";
+import { useInstitution } from "../../context/InstitutionContext";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Label } from "@/components/ui/label";
-import FormBuilder from "./FormStructureBuilder";
-import axios from "axios";
 
-import WaitingLobbyTab from "./admin-tabs/WaitingLobbyTab";
-import MembersTab from "./admin-tabs/MembersTab";
-import ApplicationFormTab from "./admin-tabs/ApplicationFormTab";
-import InstitutionProfileTab from "./admin-tabs/InstitutionProfileTab";
+// UI components
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+
+// Components
+import WaitingLobbyTab from "./WaitingLobbyTab";
+import MembersTab from "./ManageMembersTab";
+import ApplicationFormTab from "./ApplicationFormTab";
+import InstitutionProfileTab from "./InstitutionProfileTab";
+import { fetchMembers, fetchWaitingLobbyRequests, updateTeacherRequestStatus } from "./admin-utility";
 
 export default function AdminDashboard() {
-    const { user } = useAuth();
     const { institution, updateInstitution } = useInstitution();
-    const [expandedRequestId, setExpandedRequestId] = useState(null); // Track expanded row
 
     // Fetch waiting lobby requests
     const { 
@@ -33,10 +24,7 @@ export default function AdminDashboard() {
         refetch: refetchRequests
     } = useQuery({
         queryKey: ["waiting-lobby-requests", institution?.inst_id],
-        queryFn: async () => {
-            const response = await axios.get(`/api/waiting-lobby/${institution.inst_id}/teachers`);
-            return response.data;
-        },
+        queryFn: async () => await fetchWaitingLobbyRequests(institution?.inst_id),
         enabled: !!(institution?.inst_id)
     });
 
@@ -47,28 +35,19 @@ export default function AdminDashboard() {
         refetch: refetchMembers
     } = useQuery({
         queryKey: ['institution-members', institution?.inst_id],
-        queryFn: async () => {
-          const response = await axios.get(`/api/members/${institution?.inst_id}/teachers`);
-          return response.data;
-      },
+        queryFn: async () => await fetchMembers(institution?.inst_id),
         enabled: !!(institution?.inst_id)
     });
 
     // Mutation for request actions
     const { mutate: handleRequestAction } = useMutation({
-        mutationFn: async ({ requestId, action }) => {
-            const response = await axios.patch(`/api/waiting-lobby/${institution.inst_id}/teachers/${requestId}/${action}`);
-            return response.data;
-        },
+        mutationFn: async ({ requestId, action }) => updateTeacherRequestStatus(institution?.inst_id, requestId, action),
         onSuccess: () => refetchRequests() && refetchMembers()
     });
 
     // Mutation for member actions
     const { mutate: handleMemberAction } = useMutation({
-        mutationFn: async ({ userId, action }) => {
-            const response = await axios.post(`/api/members/${institution?.inst_id}/${userId}/${action}`);
-            return response.data;
-        },
+        mutationFn: async ({ userId, action }) => modifyMemberStatus(institution?.inst_id, userId, action),
         onSuccess: () => refetchMembers()
     });
 
@@ -78,7 +57,7 @@ export default function AdminDashboard() {
             <h1 className="text-3xl font-bold">Admin Dashboard</h1>
             <div className="flex items-center space-x-4">
               <Badge variant="outline">Institution: {institution?.name}</Badge>
-              <Badge variant="outline">Admin: {user?.displayName}</Badge>
+              <Badge variant="outline">Admin: {institution?.createdBy?.displayName}</Badge>
             </div>
           </div>
     

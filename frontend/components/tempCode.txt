@@ -1,289 +1,261 @@
-import { useState } from 'react'
-import { Plus, Trash2 } from 'lucide-react'
-import { useMutation } from '@tanstack/react-query'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
+import React, { useState, useEffect } from "react";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useQuery } from "@tanstack/react-query";
+import { useInstitution } from "../context/InstitutionContext";
+import axios from "axios";
+import { Search } from "lucide-react";
 import {
   Select,
+  SelectTrigger,
   SelectContent,
   SelectItem,
-  SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Switch } from '@/components/ui/switch'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import NavBar from './shared-components/NavBar'
-import { useToast } from '@/hooks/use-toast'
-import { useAuth } from '../context/AuthContext'
-import { useInstitution } from '../context/InstitutionContext'
-import axios from 'axios'
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
+import { Book, Building2, FileText, GraduationCap, Lock, LockOpen } from "lucide-react"
 
-const saveFormDefinition = async ({ institutionId, formData, userToken }) => {
+// ... existing fetchPapersByInstitution function ...
+const fetchPapersByInstitution = async (institutionId) => {
   try {
-    const response = await axios.post(`/api/institutions/${institutionId}/form-definition`,formData)
-    return response.data
+    const response = await axios.get(`/api/question-papers/${institutionId}`);
+    return response.data;
   } catch (error) {
-    throw new Error(error)
+    throw new Error(error.response?.data?.message || "Failed to fetch question papers");
   }
-}
+};
 
-export default function FormBuilder() {
-  const { userToken } = useAuth()
-  const { institution } = useInstitution()
-  const [fields, setFields] = useState([])
-  const [currentField, setCurrentField] = useState({
-    name: '',
-    type: 'text',
-    description: '',
-    required: false,
-    acceptedFileTypes: '',
-  })
-  const { toast } = useToast()
+export default function StudentDashboard() {
+  const { institution } = useInstitution();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState({
+    subjects: [],
+    examTypes: [],
+    degrees: [],
+  });
+  const [sortBy, setSortBy] = useState('newest');
+  const [filteredPapers, setFilteredPapers] = useState([]);
 
-  const mutation = useMutation({
-    mutationFn: ({ institutionId, formData, userToken }) =>
-      saveFormDefinition({ institutionId, formData, userToken }),
-    onSuccess: () => {
-      toast({
-        title: 'Success',
-        description: 'Form definition saved successfully',
-      })
-    },
-    onError: (error) => {
-      toast({
-        title: 'Error',
-        description: `Failed to save form definition: ${error.message}`,
-        variant: 'destructive',
-      })
-    },
-  })
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["student-view-qp", institution?.inst_id],
+    queryFn: async () => await fetchPapersByInstitution(institution?.inst_id),
+    enabled: !!institution?.inst_id,
+  });
 
-  const fieldTypes = [
-    { value: 'text', label: 'Text' },
-    { value: 'email', label: 'Email' },
-    { value: 'password', label: 'Password' },
-    { value: 'number', label: 'Number' },
-    { value: 'tel', label: 'Phone' },
-    { value: 'textarea', label: 'Long Text' },
-    { value: 'date', label: 'Date' },
-    { value: 'file', label: 'File Upload' },
-  ]
-
-  const addField = () => {
-    if (currentField.name.trim()) {
-      const newField = { ...currentField, id: Date.now() }
-      if (newField.type !== 'file') {
-        delete newField.acceptedFileTypes
-      }
-      setFields([...fields, newField])
-      setCurrentField({
-        name: '',
-        type: 'text',
-        description: '',
-        required: false,
-        acceptedFileTypes: '',
-      })
+  useEffect(() => {
+    if (data?.questionPapers) {
+      applyFilters();
     }
-  }
+  }, [data, filters, searchTerm, sortBy]);
 
-  const removeField = (id) => {
-    setFields(fields.filter((field) => field.id !== id))
-  }
+  const applyFilters = () => {
+    let filtered = [...data.questionPapers];
 
-  const handleSave = () => {
-    mutation.mutate({
-      institutionId: institution.inst_id,
-      formData: { fields },
-      userToken,
-    })
-  }
+    // Apply search filter
+    if (searchTerm.trim() !== '') {
+      filtered = filtered.filter(paper =>
+        paper.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        paper.subject.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply category filters
+    if (filters.subjects.length > 0) {
+      filtered = filtered.filter(paper => filters.subjects.includes(paper.subject));
+    }
+    if (filters.examTypes.length > 0) {
+      filtered = filtered.filter(paper => filters.examTypes.includes(paper.examinationType));
+    }
+    if (filters.degrees.length > 0) {
+      filtered = filtered.filter(paper => filters.degrees.includes(paper.degree));
+    }
+
+    // Apply sorting
+    switch (sortBy) {
+      case 'newest':
+        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        break;
+      case 'oldest':
+        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+        break;
+      default:
+        break;
+    }
+
+    setFilteredPapers(filtered);
+  };
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+  };
+
+  // Extract unique values for filter options
+  const filterOptions = data?.questionPapers ? {
+    subjects: { 
+      title: "Subjects", 
+      items: [...new Set(data.questionPapers.map(paper => paper.subject))] 
+    },
+    examTypes: { 
+      title: "Exam Types", 
+      items: [...new Set(data.questionPapers.map(paper => paper.examinationType))] 
+    },
+    degrees: { 
+      title: "Degrees", 
+      items: [...new Set(data.questionPapers.map(paper => paper.degree))] 
+    },
+  } : {};
 
   return (
-    <div className="min-h-screen">
-      <NavBar />
-      <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-2">Design Registration Form</h1>
-        <p className="text-muted-foreground mb-6">
-          Create the structure for the registration form that applicants will fill out when joining your institution.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Column - Field Configuration */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Add Form Fields</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="fieldName">Field Name</Label>
-                  <Input
-                    id="fieldName"
-                    value={currentField.name}
-                    onChange={(e) =>
-                      setCurrentField({ ...currentField, name: e.target.value })
-                    }
-                    placeholder="Enter field name"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="fieldType">Field Type</Label>
-                  <Select
-                    value={currentField.type}
-                    onValueChange={(value) =>
-                      setCurrentField({ ...currentField, type: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select field type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {fieldTypes.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="description">Field Description</Label>
-                  <Textarea
-                    id="description"
-                    value={currentField.description}
-                    onChange={(e) =>
-                      setCurrentField({
-                        ...currentField,
-                        description: e.target.value,
-                      })
-                    }
-                    placeholder="Enter field description (will be used as placeholder text)"
-                    rows={3}
-                  />
-                </div>
-
-                {currentField.type === 'file' && (
-                  <div>
-                    <Label htmlFor="acceptedFileTypes">Accepted File Types</Label>
-                    <Input
-                      id="acceptedFileTypes"
-                      value={currentField.acceptedFileTypes}
-                      onChange={(e) =>
-                        setCurrentField({
-                          ...currentField,
-                          acceptedFileTypes: e.target.value,
-                        })
-                      }
-                      placeholder="e.g., .pdf,.doc,.docx"
-                    />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Enter file extensions separated by commas (e.g., .pdf,.doc,.docx)
-                    </p>
-                  </div>
-                )}
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="required"
-                    checked={currentField.required}
-                    onCheckedChange={(checked) =>
-                      setCurrentField({ ...currentField, required: checked })
-                    }
-                  />
-                  <Label htmlFor="required">Required Field</Label>
-                </div>
-
-                <Button onClick={addField} className="w-full">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Field
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Right Column - Form Preview */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Form Preview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[500px] pr-4">
-                <form className="space-y-4">
-                  {fields.map((field) => (
-                    <div key={field.id} className="relative">
-                      <Label htmlFor={`preview-${field.id}`}>
-                        {field.name}
-                        {field.required && <span className="text-destructive ml-1">*</span>}
-                      </Label>
-                      {field.type === 'textarea' ? (
-                        <Textarea
-                          id={`preview-${field.id}`}
-                          placeholder={field.description}
-                          disabled
-                        />
-                      ) : field.type === 'file' ? (
-                        <div className="mt-2">
-                          <Input
-                            id={`preview-${field.id}`}
-                            type="file"
-                            accept={field.acceptedFileTypes}
-                            disabled
-                          />
-                          {field.description && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {field.description}
-                            </p>
-                          )}
-                          {field.acceptedFileTypes && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Accepted formats: {field.acceptedFileTypes}
-                            </p>
-                          )}
-                        </div>
-                      ) : (
-                        <Input
-                          id={`preview-${field.id}`}
-                          type={field.type}
-                          placeholder={field.description}
-                          disabled
-                        />
-                      )}
-                      <Button
-                        variant="destructive"
-                        size="icon"
-                        className="absolute right-2 top-8"
-                        onClick={() => removeField(field.id)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                  {fields.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">
-                      Add fields to see the form preview here
-                    </p>
-                  )}
-                </form>
-              </ScrollArea>
-            </CardContent>
-          </Card>
+    <div className="p-4">
+      <div className="mb-6 flex items-center gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="search"
+            placeholder="Search question papers..."
+            className="pl-10"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="newest">Newest First</SelectItem>
+            <SelectItem value="oldest">Oldest First</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
-        <Button
-          className="mt-6"
-          size="lg"
-          onClick={handleSave}
-          disabled={fields.length === 0 || mutation.isLoading}
-        >
-          {mutation.isLoading ? 'Saving...' : 'Save Form Structure'}
-        </Button>
+      <div className="grid grid-cols-12 gap-6">
+        <aside className="col-span-3">
+          <FilterBar
+            filtersConfig={filterOptions}
+            onFilterChange={handleFilterChange}
+          />
+        </aside>
+
+        <div className="col-span-9">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {isLoading ? (
+              <p>Loading...</p>
+            ) : error ? (
+              <p className="text-destructive">Error: {error.message}</p>
+            ) : filteredPapers.length > 0 ? (
+              filteredPapers.map((paper) => (
+                <Card key={paper.qp_id} className="group hover:shadow-lg transition-shadow duration-200 overflow-hidden">
+              <CardHeader className="space-y-1">
+                <div className="flex items-start justify-between">
+                  <CardTitle className="text-lg font-bold line-clamp-2">{paper.name}</CardTitle>
+                  <Badge variant={paper.accessType === "Public" ? "default" : "secondary"}>
+                    {paper.accessType === "Public" ? (
+                      <LockOpen className="w-3 h-3 mr-1" />
+                    ) : (
+                      <Lock className="w-3 h-3 mr-1" />
+                    )}
+                    {paper.accessType}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-3">
+                  <div className="flex items-center gap-2">
+                    <Book className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      <span className="text-muted-foreground">Subject:</span> {paper.subject}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <GraduationCap className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      <span className="text-muted-foreground">Degree:</span> {paper.degree}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      <span className="text-muted-foreground">Exam Type:</span> {paper.examinationType}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      <span className="text-muted-foreground">Belongs To:</span> {paper.belongsTo.name}
+                    </span>
+                  </div>
+                </div>
+                <Separator />
+              </CardContent>
+              <CardFooter>
+                <Button
+                  asChild
+                  variant="default"
+                  className="w-full"
+                >
+                  <a href={paper.documentURL} target="_blank" rel="noopener noreferrer">
+                    View Question Paper
+                  </a>
+                </Button>
+              </CardFooter>
+            </Card>
+              ))
+            ) : (
+              <p>No matching question papers found.</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
+const FilterBar = ({ filtersConfig, onFilterChange }) => {
+  const initialFilters = Object.keys(filtersConfig).reduce((acc, key) => {
+    acc[key] = [];
+    return acc;
+  }, {});
+
+  const [filters, setFilters] = useState(initialFilters);
+
+  const handleFilterChange = (category, item) => {
+    setFilters((prevFilters) => {
+      const updatedCategory = prevFilters[category].includes(item)
+        ? prevFilters[category].filter((i) => i !== item)
+        : [...prevFilters[category], item];
+
+      const updatedFilters = { ...prevFilters, [category]: updatedCategory };
+      onFilterChange(updatedFilters);
+      return updatedFilters;
+    });
+  };
+
+  return (
+    <div className="space-y-4 p-4">
+      {Object.entries(filtersConfig).map(([category, { title, items }]) => (
+        <div key={category}>
+          <Label className="block mb-2">{title}</Label>
+          <div className="space-y-2">
+            {items.map((elem, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <Checkbox
+                  id={`${category}-${index}`}
+                  checked={filters[category].includes(elem)}
+                  onCheckedChange={() => handleFilterChange(category, elem)}
+                />
+                <label htmlFor={`${category}-${index}`} className="text-sm">
+                  {elem}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
