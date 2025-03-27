@@ -1,194 +1,216 @@
-import { useQuery } from "@tanstack/react-query"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search, Building2, Plus } from "lucide-react"
-import { useState } from "react"
-import CreateInstitutionDialog from "./create-institution-dialog"
-import { useAuth } from "../../context/AuthContext"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import axios from "axios"
-import JoinStepper from "../stepper-form/join-stepper"
+import { useQuery, useQueryClient } from "@tanstack/react-query"; // Added useQueryClient
+import { Card, CardContent } from "@/components/ui/card"; // Removed CardFooter
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Building2, Plus, UserPlus } from "lucide-react"; // Added UserPlus icon
+import { useState } from "react";
+import CreateInstitutionDialog from "./create-institution-dialog"; // Adjust path if needed
+import { useAuth } from "../../context/AuthContext"; // Adjust path if needed
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import axios from "axios";
+import JoinStepper from "../stepper-form/join-stepper"; // Adjust path if needed
 
+// Function to fetch all institutions (ensure createdBy is populated)
 const fetchInstitutions = async () => {
   try {
-    const response = await axios.get("/api/institutions/")
-    return response.data
+    const response = await axios.get("/api/institutions/");
+    // Add a check/warning if createdBy might be missing details
+    if (response.data && response.data.length > 0 && typeof response.data[0].createdBy === 'string') {
+      console.warn("fetchInstitutions: createdBy field seems to be an ID, not an object. DisplayName might be missing.");
+    }
+    return response.data;
   } catch (error) {
-    throw new Error("Failed to fetch institutions: " + error.message)
+    console.error("Failed to fetch institutions:", error);
+    throw new Error("Failed to fetch institutions: " + (error.response?.data?.message || error.message));
   }
-}
+};
 
 export default function BrowseInstitutions() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
-  const [isJoinStepperOpen, setIsJoinStepperOpen] = useState(false)
-  const [joiningInstitution, setJoiningInstitution] = useState(null)
-  const { isLoggedIn, showAuthError } = useAuth()
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isJoinStepperOpen, setIsJoinStepperOpen] = useState(false);
+  const [joiningInstitution, setJoiningInstitution] = useState(null);
+  const { isLoggedIn, showAuthError } = useAuth();
+  const queryClient = useQueryClient(); // Get query client for error retry
 
-  const { data, isLoading, error } = useQuery({
+  // Fetch institutions using React Query
+  const { data: institutions, isLoading, error } = useQuery({
     queryKey: ["institutions"],
     queryFn: fetchInstitutions,
-  })
+  });
 
+  // Filter institutions based on search query
+  const filteredInstitutions = institutions
+    ?.filter((institution) =>
+      institution.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
+
+  // --- Handlers (remain the same) ---
   const handleCreateInstitution = () => {
     if (isLoggedIn) {
-      setIsCreateDialogOpen(true)
+      setIsCreateDialogOpen(true);
     } else {
-      showAuthError()
+      showAuthError();
     }
-  }
+  };
 
   const handleCreateDialogClose = () => {
-    setIsCreateDialogOpen(false)
-  }
+    setIsCreateDialogOpen(false);
+  };
 
   const handleJoinInstitutionClick = (institution) => {
-    if(isLoggedIn) {
-      setJoiningInstitution(institution)
-      setIsJoinStepperOpen(true)
+    if (isLoggedIn) {
+      setJoiningInstitution(institution);
+      setIsJoinStepperOpen(true);
     } else {
-      showAuthError()
+      showAuthError();
     }
-  }
+  };
 
   const handleJoinStepperClose = () => {
-    setIsJoinStepperOpen(false)
-    setJoiningInstitution(null)
-  }
+    setIsJoinStepperOpen(false);
+    setJoiningInstitution(null);
+  };
+
+  // Function to retry fetching
+  const retryFetch = () => {
+    queryClient.invalidateQueries({ queryKey: ['institutions'] });
+  };
 
   return (
-    <div className="min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold tracking-tight mb-4">Browse Institutions</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto mb-8">
-            Discover and connect with educational institutions from around the world
-          </p>
+    <div className="container mx-auto px-4 py-8 lg:px-8 lg:py-12">
+      {/* Header Section (remains the same) */}
+      <div className="text-center mb-10 md:mb-12">
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">Browse Institutions</h1>
+        <p className="text-muted-foreground max-w-3xl mx-auto">
+          Discover and connect with educational institutions from around the world.
+        </p>
+      </div>
 
-          {/* Search Bar and Create Button */}
-          <div className="flex max-w-2xl mx-auto gap-4">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
-              <Input
-                type="text"
-                placeholder="Search institutions by name..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 hidden sm:block"
-              />
-              <Input
-                type="text"
-                placeholder=""
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 sm:hidden"
-              />
-            </div>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button onClick={handleCreateInstitution} className=" h-12 px-6">
-                    <Plus className="w-7 h-7" />
-                    <p className="hidden sm:block">Create</p>
-                  </Button>
-                </TooltipTrigger>
-                {!isLoggedIn && (
-                  <TooltipContent>
-                    <p>Create your own institution</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            </TooltipProvider>
+      {/* Search Bar and Create Button Row (remains the same) */}
+      <div className="flex max-w-2xl mx-auto gap-3 sm:gap-4 mb-10 md:mb-12">
+        <div className="relative flex-grow">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 sm:h-5 sm:w-5" />
+          <Input
+            type="text"
+            placeholder="Search institutions by name..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-11 sm:h-12 text-base"
+          />
+        </div>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button onClick={handleCreateInstitution} className="h-11 sm:h-12 px-4 sm:px-5 shrink-0">
+                <Plus className="w-5 h-5 mr-0 sm:mr-2" />
+                <span className="hidden sm:inline">Create</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent className="dark:bg-foreground">
+              <p>Create your own institution</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      {/* Loading State (remains the same) */}
+      {isLoading && (
+        <div className="text-center py-16">
+          {/* ... loading indicator ... */}
+          <Building2 className="h-12 w-12 animate-pulse mx-auto text-primary/80" />
+          <p className="mt-4 text-lg text-muted-foreground">Loading institutions...</p>
+        </div>
+      )}
+
+      {/* Error State (Updated retry button) */}
+      {error && (
+        <div className="text-center py-16">
+          <div className="max-w-lg mx-auto p-6 bg-destructive/10 border border-destructive/30 rounded-lg">
+            <p className="text-destructive font-medium mb-1">Failed to load institutions</p>
+            <p className="text-destructive/80 text-sm mb-4">{error.message}</p>
+            <Button variant="destructive" onClick={retryFetch}> {/* Use invalidateQueries */}
+              Try Again
+            </Button>
           </div>
         </div>
+      )}
 
-        {/* Loading State */}
-        {isLoading && (
-          <div className="text-center py-12">
-            <Building2 className="h-10 w-10 animate-spin mx-auto text-primary" />
-            <p className="mt-4 text-lg text-muted-foreground">Loading institutions...</p>
-          </div>
-        )}
+      {/* Institutions Grid */}
+      {!isLoading && !error && institutions && (
+        // Adjusted gap for potentially wider cards
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filteredInstitutions.map((institution) => (
+            // NEW CARD LAYOUT START
+            <Card
+              key={institution.inst_id}
+              className="w-full hover:shadow-lg transition-shadow duration-300 border hover:border-primary/20 bg-card flex items-center p-4 space-x-4" // Use flex, center items vertically, add padding & spacing
+            >
+              {/* 1. Logo */}
+              <Avatar className="h-12 w-12 shrink-0"> {/* Fixed size, prevent shrinking */}
+                <AvatarImage src={institution.logoUrl || undefined} alt={`${institution.name} logo`} />
+                <AvatarFallback className="bg-secondary text-secondary-foreground font-medium">
+                  {institution.name?.substring(0, 2).toUpperCase() || '??'}
+                </AvatarFallback>
+              </Avatar>
 
-        {/* Error State */}
-        {error && (
-          <div className="text-center py-12">
-            <div className="max-w-md mx-auto p-4 bg-destructive/10 rounded-lg">
-              <p className="text-destructive">Error: {error.message}</p>
-              <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
-                Try Again
-              </Button>
-            </div>
-          </div>
-        )}
+              {/* 2. Text Content */}
+              <div className="flex-grow overflow-hidden"> {/* Allow text area to grow, hide overflow */}
+                <h3 className="text-base font-semibold leading-tight truncate" title={institution.name}> {/* Truncate long names */}
+                  {institution.name}
+                </h3>
+                <p className="text-sm text-muted-foreground truncate"> {/* Truncate long creator names */}
+                  Created by: {institution.createdBy?.displayName || 'Unknown User'}
+                </p>
+              </div>
 
-        {/* Institutions Grid */}
-        {!isLoading && !error && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data
-              ?.filter((institution) => institution.name.toLowerCase().includes(searchQuery.toLowerCase()))
-              .map((institution) => (
-                <Accordion type="single" collapsible key={institution.inst_id}>
-                  <AccordionItem value="item-1" className="border-none">
-                    <Card className="w-full hover:shadow-lg transition-shadow duration-200">
-                      <AccordionTrigger className="hover:no-underline p-0">
-                        <CardContent className="p-6">
-                          <div className="flex flex-col items-center">
-                            <Avatar className="w-24 h-24 mb-4 ring-2 ring-primary/10">
-                              <AvatarImage src={institution.logoUrl} alt={`${institution.name} logo`} />
-                              <AvatarFallback className="bg-primary/5 text-primary">
-                                {institution.name.substring(0, 2).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <h2 className="text-xl font-semibold text-center mb-2">{institution.name}</h2>
-                            <p className="text-sm text-muted-foreground text-center">
-                              Created by: {institution.createdBy.displayName}
-                            </p>
-                          </div>
-                        </CardContent>
-                      </AccordionTrigger>
+              {/* 3. Join Button (Icon) */}
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="ghost" // Or "outline"
+                      className="shrink-0 text-muted-foreground hover:text-primary" // Prevent shrinking, style
+                      onClick={() => handleJoinInstitutionClick(institution)}
+                      aria-label={`Join ${institution.name}`} // Accessibility label
+                    >
+                      <UserPlus className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Join Institution</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </Card>
+          ))}
+        </div>
+      )}
 
-                      <AccordionContent>
-                        <CardFooter className="px-6 pb-6">
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleJoinInstitutionClick(institution)
-                            }}
-                            // disabled={isLoggedIn ? false : true}
-                            className="w-full"
-                          >
-                            Start Joining Process
-                          </Button>
-                        </CardFooter>
-                      </AccordionContent>
-                    </Card>
-                  </AccordionItem>
-                </Accordion>
-              ))}
-          </div>
-        )}
-
-        {/* No Results */}
-        {!isLoading &&
-          !error &&
-          data?.filter((institution) => institution.name.toLowerCase().includes(searchQuery.toLowerCase())).length ===
-            0 && (
-            <div className="text-center py-12">
-              <p className="text-lg text-muted-foreground">No institutions found matching your search.</p>
-            </div>
+      {/* No Results State (remains the same) */}
+      {!isLoading && !error && filteredInstitutions.length === 0 && (
+        <div className="text-center py-16">
+          {/* ... no results message ... */}
+          <p className="text-lg text-muted-foreground">
+            {searchQuery ? "No institutions found matching your search." : "No institutions available yet."}
+          </p>
+          {!searchQuery && (
+            <Button onClick={handleCreateInstitution} className="mt-4">
+              <Plus className="w-4 h-4 mr-2" /> Create New Institution
+            </Button>
           )}
+        </div>
+      )}
 
-        {/* Create Institution Dialog */}
-        <CreateInstitutionDialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogClose} />
-
-        {/* Join Stepper Dialog */}
+      {/* Dialogs (remain the same) */}
+      <CreateInstitutionDialog open={isCreateDialogOpen} onOpenChange={handleCreateDialogClose} />
+      {joiningInstitution && (
         <JoinStepper open={isJoinStepperOpen} onOpenChange={handleJoinStepperClose} institution={joiningInstitution} />
-      </div>
+      )}
     </div>
-  )
+
+
+  );
 }

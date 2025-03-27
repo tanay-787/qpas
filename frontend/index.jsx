@@ -4,6 +4,7 @@ import App from "./App";
 import "./styles.css";
 import { ThemeProvider } from "@/components/themeProvider";
 import { Toaster } from "@/components/ui/toaster"
+import { Toaster as ToasterS } from "sonner";
 import { BrowserRouter } from "react-router-dom";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -11,8 +12,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
      <ThemeProvider>
      <BrowserRouter>
       <App />
+      <ToasterS richColors closeButton/>
       <Toaster />
     </BrowserRouter>
     </ThemeProvider>
-  </React.StrictMode>
+ </React.StrictMode>
 );

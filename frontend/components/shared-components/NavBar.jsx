@@ -34,6 +34,9 @@ import { ModeToggle } from "@/components/mode-toggle";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "@/components/themeProvider";
 import { useToast } from "@/hooks/use-toast";
+import { toast as sonner } from "sonner";
+import { useInstitution } from "../../context/InstitutionContext";
+import { LayoutDashboard } from "lucide-react";
 
 const MenuContent = () => (
   <div className="space-y-4">
@@ -42,9 +45,6 @@ const MenuContent = () => (
     </a>
     <a href="/browse-institutions" className="block text-lg hover:underline">
       Browse
-    </a>
-    <a href="#" className="block text-lg hover:underline">
-      Blog
     </a>
   </div>
 );
@@ -55,6 +55,7 @@ export default function NavBar() {
   const [uiTheme, setUITheme] = useState(theme);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { institution } = useInstitution();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -68,6 +69,36 @@ export default function NavBar() {
       setUITheme(theme);
     }
   }, [theme]);
+
+  const handleDashboardNavigation = () => {
+    //current window name
+    if (window.location.pathname.includes("dashboard")) {
+      return;
+    }
+    if (!user || !user?.member_of) {
+      sonner.warning("No Institution Found", {
+        description: "Please join or create an institution first",
+      })
+      return;
+    }
+
+    if (!user?.role) {
+      sonner.warning("No Role Found", {
+        description: "Please contact the admin of your institution for role assignment",
+      })
+      return;
+    }
+
+    const institutionId = user?.member_of;
+    if (institutionId === institution?.inst_id) {
+      navigate(`/${institutionId}/${user?.role}/dashboard`);
+    } else {
+      sonner.warning("Institution Mismatch", {
+        description: "You are not a member of this institution",
+      })
+      return;
+    }
+  };
 
   const handleUserLogout = async () => {
     await logout();
@@ -95,10 +126,18 @@ export default function NavBar() {
         </nav>
       </div>
       <div className="flex items-center space-x-2">
+        {user && user?.member_of && !(window.location.pathname.includes("dashboard")) && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleDashboardNavigation}
+            className=""
+            title="Go to Dashboard"
+          >
+            <LayoutDashboard size={20} />
+          </Button>
+        )}
         <ModeToggle />
-        {/* <Button variant="ghost" size="icon" onClick={() => navigate('/cart')}>
-                    <ShoppingBag size={20} />
-                </Button> */}
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -111,7 +150,6 @@ export default function NavBar() {
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Orders</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleUserLogout}>
                 Logout
@@ -134,7 +172,7 @@ export default function NavBar() {
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-            <div className="flex justify-between items-center mb-6">
+            {/* <div className="flex justify-between items-center mb-6">
               <img
                 src={`/assets/cleatcentral-logo-${theme}.svg`}
                 width={130}
@@ -142,7 +180,7 @@ export default function NavBar() {
                 alt="CleatCentral logo"
                 className="w-25 h-auto"
               />
-            </div>
+            </div> */}
             <MenuContent />
           </SheetContent>
         </Sheet>

@@ -5,8 +5,14 @@ import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Info } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 export function TestUI() {
+
+  const triggerToast = () => {
+    toast.success('This is a toast message!');
+  };
+  
   return (
     <div className="container mx-auto p-8 space-y-8">
       {/* Color Test Section */}
@@ -17,7 +23,7 @@ export function TestUI() {
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Primary Colors</h3>
           <div className="flex gap-4">
-            <Button variant="default">Primary Button</Button>
+            <Button variant="default" onClick={triggerToast}>Primary Button</Button>
             <Button variant="secondary">Secondary Button</Button>
             <Button variant="destructive">Destructive Button</Button>
             <Button variant="outline" size="icon"><Info className="text-primary"/></Button>
