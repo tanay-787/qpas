@@ -22,13 +22,17 @@ import {
   SidebarGroup,
   SidebarHeader,
 } from "@/components/ui/sidebar";
+import { useInstitution } from "../../context/InstitutionContext";
 import { Info } from "lucide-react";
 import { ChevronRight } from "lucide-react";
 import { Users } from "lucide-react";
 import { FileQuestion } from "lucide-react";
 import { Clock } from "lucide-react";
+import { Building } from "lucide-react";
+import { Building2 } from "lucide-react";
 
 export default function TDSidebar({ activeKey, setActiveKey }) {
+  const { institution } = useInstitution();
   return (
     <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader>
@@ -36,8 +40,8 @@ export default function TDSidebar({ activeKey, setActiveKey }) {
           <SidebarMenuItem>
             <SidebarMenuButton disabled>
               {/* Add logo of institution */}
-              <Info className=" h-4 w-4" />
-              <span>QP Archives</span>
+              <Building2 className=" h-4 w-4" />
+              <span>{institution?.name}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

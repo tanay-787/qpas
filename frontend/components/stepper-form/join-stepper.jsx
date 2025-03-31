@@ -25,6 +25,7 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
     defaultValues: { role: "" }
   });
   const selectedRole = useWatch({ control, name: "role" });
+  const [hasFormFields, setHasFormFields] = useState(true);
 
   const joinWLMutation = useMutation({
     mutationFn: async (formData) => {
@@ -54,7 +55,13 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
   };
 
   const onSubmit = (data) => {
-    joinWLMutation.mutate(data);
+    const formResponses = Object.entries(data).filter(([key]) => key !== 'role');
+
+    // If there are no form responses, it means there were no form fields
+    if (formResponses.length === 0) {
+      setHasFormFields(false);
+      return;
+    }
   };
 
   if (!institution) return null;
@@ -78,16 +85,16 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
               steps={steps}
               className="mb-8"
             >
-              <Step 
-                label="Select Role" 
+              <Step
+                label="Select Role"
                 state={!selectedRole ? "error" : undefined}
                 errorIcon={X}
               >
                 <RoleSelection control={control} institution={institution} />
               </Step>
 
-              <Step 
-                label="Join Form" 
+              <Step
+                label="Join Form"
                 state={joinWLMutation.isPending ? "loading" : serverError ? "error" : undefined}
                 checkIcon={Check}
                 errorIcon={X}
@@ -98,6 +105,7 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
                     institution={institution}
                     selectedRole={selectedRole}
                     onSubmit={handleSubmit(onSubmit)}
+                    onOpenChange={handleOpenChange}
                   />
                   {serverError && (
                     <p className="pb-5 text-red-500 text-sm ">Error: {serverError}</p>
@@ -105,7 +113,7 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
                 </div>
               </Step>
 
-              <Step 
+              <Step
                 label="Complete"
                 state="completed"
                 checkIcon={<CheckCircle className="w-4 h-4" />}
@@ -113,9 +121,10 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
                 <SuccessStep institution={institution} />
               </Step>
 
-              <StepperControls 
+              <StepperControls
                 joinWLMutation={joinWLMutation}
                 isValid={isValid}
+                hasFormFields={hasFormFields}
                 selectedRole={selectedRole}
                 handleSubmit={handleSubmit}
                 onSubmit={onSubmit}
@@ -128,7 +137,7 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
   );
 }
 
-function StepperControls({ joinWLMutation, isValid, selectedRole, handleSubmit, onSubmit }) {
+function StepperControls({ joinWLMutation, isValid, selectedRole, hasFormFields, handleSubmit, onSubmit }) {
   const { prevStep, nextStep, activeStep } = useStepper();
 
   // Handle successful submission
@@ -152,18 +161,18 @@ function StepperControls({ joinWLMutation, isValid, selectedRole, handleSubmit, 
         onClick={activeStep === 1 ? handleSubmit(onSubmit) : nextStep}
         disabled={
           (activeStep === 0 && !selectedRole) ||
-          (activeStep === 1 && (!isValid || joinWLMutation.isPending)) ||
+          (activeStep === 1 && (!isValid || joinWLMutation.isPending || !hasFormFields)) ||
           activeStep === steps.length - 1
         }
       >
         {joinWLMutation.isPending ? (
           <span className="animate-pulse">Submitting...</span>
         ) : activeStep === steps.length - 2 ? (
-          "Submit"
+          hasFormFields ? "Submit" : "No Form Available"
         ) : (
           "Next"
         )}
       </Button>
-    </CardFooter>
+    </CardFooter >
   );
 }

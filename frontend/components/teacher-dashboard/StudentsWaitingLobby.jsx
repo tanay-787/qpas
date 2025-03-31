@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, UserCheck, UserX } from "lucide-react";
+import { ChevronDown, ChevronUp, UserCheck, UserX, InboxIcon, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -9,27 +9,83 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default function WaitingLobby({ requests, loading, onRequestAction }) {
+export default function WaitingLobby({ requests, loading, onRequestAction, onRefresh }) {
     const [expandedRequestId, setExpandedRequestId] = useState(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     const toggleExpand = (requestId) => {
         setExpandedRequestId(expandedRequestId === requestId ? null : requestId);
     };
 
+    // Handle refresh with minimum loading time
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+
+        try {
+            // Handle both promise and non-promise returns
+            if (onRefresh) {
+                await Promise.resolve(onRefresh());
+            }
+        } catch (error) {
+            console.error("Error refreshing data:", error);
+        } finally {
+            // Ensure loading state is always turned off after a delay
+            setTimeout(() => {
+                setIsRefreshing(false);
+            }, 500);
+        }
+    };
+
+    // Empty state component with refresh button
+    const EmptyState = () => (
+        <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="bg-muted rounded-full p-4 mb-4">
+                <InboxIcon className="h-10 w-10 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">No pending requests</h3>
+            <p className="text-muted-foreground max-w-sm mb-6">
+                When students request to join your class, they will appear here for approval.
+            </p>
+            <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+                disabled={loading || isRefreshing}
+            >
+                <RefreshCw className={`h-4 w-4 mr-2 ${(loading || isRefreshing) ? 'animate-spin' : ''}`} />
+                Refresh
+            </Button>
+        </div>
+    );
+
+    // Determine if we should show loading state
+    const showLoading = loading || isRefreshing;
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Pending Requests</CardTitle>
+                <CardTitle className="flex justify-between items-center">
+                    <span>Pending Requests</span>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleRefresh}
+                        disabled={showLoading}
+                        className="ml-2 h-8 w-8"
+                    >
+                        <RefreshCw className={`h-4 w-4 ${showLoading ? 'animate-spin' : ''}`} />
+                    </Button>
+                </CardTitle>
             </CardHeader>
             <CardContent>
                 <ScrollArea className="h-[600px]">
-                    {loading ? (
+                    {showLoading ? (
                         <div className="space-y-4">
                             {[...Array(5)].map((_, i) => (
                                 <Skeleton key={i} className="h-[73px] w-full" />
                             ))}
                         </div>
-                    ) : (
+                    ) : requests?.length > 0 ? (
                         <Table className="border">
                             <TableHeader>
                                 <TableRow>
@@ -123,6 +179,8 @@ export default function WaitingLobby({ requests, loading, onRequestAction }) {
                                 ))}
                             </TableBody>
                         </Table>
+                    ) : (
+                        <EmptyState />
                     )}
                 </ScrollArea>
             </CardContent>

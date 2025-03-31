@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import {InputPhoneComp} from "@/components/ui/input-phone"
+import { InputPhoneComp } from "@/components/ui/input-phone"
 import { DateInput } from "@/components/ui/date-input"
 import { Checkbox } from "@/components/ui/checkbox"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
@@ -11,6 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import axios from "axios"
 import { Controller } from "react-hook-form"
 import { cn } from "@/lib/utils"
+import { AlertCircle } from "lucide-react"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { useEffect } from "react"
+import { toast } from "sonner"
 
 const fetchFormFields = async (institutionId, selectedRole) => {
   if (!institutionId || !selectedRole) return []
@@ -19,14 +23,45 @@ const fetchFormFields = async (institutionId, selectedRole) => {
   return response.data
 }
 
-export function JoinForm({ control, institution, selectedRole, onSubmit }) {
+export function JoinForm({ control, institution, selectedRole, onSubmit, onOpenChange }) {
   // Fetch form fields using React Query
-  const { data: formFields, isSuccess } = useQuery({
+  const { data: formFields, isSuccess, isLoading } = useQuery({
     queryKey: ["formFields", institution?.inst_id, selectedRole],
     queryFn: () => fetchFormFields(institution?.inst_id, selectedRole),
     enabled: !!institution?.inst_id && !!selectedRole,
     retry: false,
   });
+
+  // Check if form fields are empty after successful fetch
+  useEffect(() => {
+    if (isSuccess && (!formFields || formFields.length === 0)) {
+      toast.error("This institution has not set up the registration form yet.", {
+        description: "Please try again later or contact the institution administrator.",
+        duration: 5000,
+      });
+
+      // Close the entire dialog instead of just going back
+      // We need to add a new prop to handle this
+      // if (typeof onOpenChange === 'function') {
+      //   onOpenChange();
+      // }
+    }
+  }, [isSuccess, formFields]);
+
+  // Create a wrapped submit handler to prevent submission when no fields exist
+  const handleSubmit = (e) => {
+    // If no form fields, prevent form submission
+    if (!formFields || formFields.length === 0) {
+      e.preventDefault();
+      toast.error("Cannot proceed with registration", {
+        description: "The registration form has not been set up by the administrator.",
+      });
+      return;
+    }
+
+    // Otherwise, proceed with the original onSubmit
+    onSubmit(e);
+  };
 
   const renderField = (field) => {
     const commonProps = {
@@ -186,9 +221,9 @@ export function JoinForm({ control, institution, selectedRole, onSubmit }) {
           <Controller
             name={field.name}
             control={control}
-            rules={{ 
+            rules={{
               required: field.required,
-              ...(field.validation?.pattern && { 
+              ...(field.validation?.pattern && {
                 pattern: {
                   value: new RegExp(field.validation.pattern),
                   message: field.validation.message || `Invalid ${field.name} format`
@@ -211,8 +246,23 @@ export function JoinForm({ control, institution, selectedRole, onSubmit }) {
     }
   };
 
+  // If no form fields are available after loading, show an alert
+  if (isSuccess && (!formFields || formFields.length === 0)) {
+    return (
+      <div className="space-y-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Registration Not Available</AlertTitle>
+          <AlertDescription>
+            You cannot join this institution as {selectedRole} because the registration form has not been set up by the administrator.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {isSuccess && formFields?.map((field) => (
         <div key={field.id || field.name} className="space-y-2">
           {field.type !== "checkbox" && (
@@ -227,7 +277,7 @@ export function JoinForm({ control, institution, selectedRole, onSubmit }) {
           )}
         </div>
       ))}
-      <Button type="submit" className="w-full">Submit</Button>
+      <Button type="submit" className="w-full" disabled={!formFields || !formFields.length === 0}>Submit</Button>
     </form>
   );
 }

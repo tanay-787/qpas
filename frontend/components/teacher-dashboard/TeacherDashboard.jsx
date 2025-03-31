@@ -97,6 +97,7 @@ export default function TeacherDashboard() {
             requests={waitingLobbyRequests}
             loading={loadingRequests}
             onRequestAction={handleRequestAction}
+            refresh={refetchRequests}
           />
         );
       case "view-qp":
@@ -112,7 +113,7 @@ export default function TeacherDashboard() {
       case "manage-qp":
         return <QuestionPaperManage />;
       case "institution-members":
-        return <ManageStudents students={studentMembersData?.studentsList} loading={loadingStudents} onStudentAction={handleStudentAction} />;
+        return <ManageStudents students={studentMembersData?.studentsList} loading={loadingStudents} onStudentAction={handleStudentAction} refresh={refetchStudents} />;
       default:
         return null;
     }

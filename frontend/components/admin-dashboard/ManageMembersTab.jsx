@@ -93,7 +93,7 @@ export default function ManageMembersTab({ members, loading, onMemberAction, onR
                                             {member.email}
                                         </TableCell>
                                         <TableCell className="flex space-x-2">
-                                            <Button
+                                            {/* <Button
                                                 variant="secondary"
                                                 size="sm"
                                                 onClick={() => onMemberAction({
@@ -103,7 +103,7 @@ export default function ManageMembersTab({ members, loading, onMemberAction, onR
                                             >
                                                 <Pencil className="mr-2 h-4 w-4" />
                                                 Change Role
-                                            </Button>
+                                            </Button> */}
                                             <Button
                                                 variant="destructive"
                                                 size="sm"

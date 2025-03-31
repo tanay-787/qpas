@@ -49,9 +49,8 @@ export default function App() {
                 <Route path="/sample" element={<SampleDashboard />} />
                 <Route path="/institutions/:institution_id/form-builder" element={<FormStructureBuilder />} />
                 <Route path="/:institution_id/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/teacher/dashboard" element={<TeacherDashboard/>} />
-                <Route path="/student/dashboard" element={<StudentDashboard/>} />
-                <Route path="/:institution_id/student/dashboard" element={null} />
+                <Route path="/:institution_id/teacher/dashboard" element={<TeacherDashboard />} />
+                <Route path="/:institution_id/student/dashboard" element={<StudentDashboard />} />
                 <Route path="/test-ui" element={<TestUI />} />
               </Route>
             </Routes>

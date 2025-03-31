@@ -115,6 +115,7 @@ export default function AuthProvider({ children }) {
     queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
 
     sonner.success(message.title, { description: message.description });
+    navigate('/');
   };
 
   const handleAuthError = (error, defaultMessage) => {
@@ -150,8 +151,6 @@ export default function AuthProvider({ children }) {
     },
     onSuccess: (fbUser) => {
       handleAuthSuccess(fbUser, { title: 'Successfully signed in with Google' });
-      // Navigate after successful sign-in if needed
-      navigate('/dashboard'); // Example
     },
     onError: (error) => {
       handleAuthError(error, { title: 'Error signing in with Google' });
@@ -169,7 +168,6 @@ export default function AuthProvider({ children }) {
         title: `Welcome ${fbUser?.displayName || fbUser?.email}`,
         description: 'Successfully Signed in',
       });
-      navigate('/'); // Example
 
     },
     onError: (error) => {
@@ -204,7 +202,6 @@ export default function AuthProvider({ children }) {
     onSuccess: (fbUser) => {
       // Don't show success toast here maybe, navigate instead
       handleAuthSuccess(fbUser, { title: "Account Created", description: `Welcome ${fbUser.displayName}` });
-      navigate('/browse'); // Or wherever new users should go
     },
     onError: (error) => {
       // Use the original toast for this one as per your example

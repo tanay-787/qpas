@@ -1,9 +1,11 @@
 import { Button } from "@/components/ui/button"
 import Meteors from "@/components/ui/meteors"
 import HyperText from "@/components/ui/hyper-text"
+import { useNavigate } from "react-router-dom"
 import { ArrowRight, BookOpen, Database, Search, Users, CheckCircle, FileText } from "lucide-react"
 
 export default function LandingPage() {
+    const navigate = useNavigate()
     return (
         <div className="min-h-screen">
             <div className="flex flex-col bg-gradient-to-b from-background to-secondary">
@@ -24,7 +26,7 @@ export default function LandingPage() {
                                     question papers efficiently.
                                 </p>
                                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                    <Button size="lg" className="px-8 font-medium">
+                                    <Button size="lg" className="px-8 font-medium" onClick={() => navigate("/browse-institutions")}>
                                         Get Started <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                     <Button variant="outline" size="lg" className="px-8 font-medium">
@@ -151,20 +153,21 @@ export default function LandingPage() {
                                 {
                                     quote:
                                         "QPAS has revolutionized how we manage our examination resources. It's now so much easier to prepare for exams.",
-                                    author: "Dr. Sarah Johnson",
-                                    role: "Department Head, Engineering",
-                                },
-                                {
-                                    quote:
-                                        "The search functionality alone has saved our faculty countless hours when preparing new assessments.",
-                                    author: "Prof. Michael Chen",
-                                    role: "Academic Director",
+                                    author: "Prof. Smita Nair",
+                                    role: "Department Head, Information Technology",
                                 },
                                 {
                                     quote:
                                         "Students appreciate having access to past papers, which has significantly improved their exam preparation.",
-                                    author: "Lisa Rodriguez",
-                                    role: "Student Affairs Coordinator",
+
+                                    author: "Prof. Rajnish Prajapati",
+                                    role: "Senior Professor",
+                                },
+                                {
+                                    quote:
+                                        "The search functionality alone has saved our faculty countless hours when preparing new assessments.",
+                                    author: "Dr. Vivekkumar Patil",
+                                    role: "Principal, Royal College",
                                 },
                             ].map((testimonial, i) => (
                                 <div key={i} className="bg-background p-6 rounded-xl shadow-sm border">
@@ -195,7 +198,7 @@ export default function LandingPage() {
                                         repository.
                                     </p>
                                 </div>
-                                <div className="flex flex-col sm:flex-row gap-4">
+                                {/* <div className="flex flex-col sm:flex-row gap-4">
                                     <Button size="lg" variant="secondary" className="px-8 font-medium">
                                         Get Started
                                     </Button>
@@ -206,7 +209,7 @@ export default function LandingPage() {
                                     >
                                         Request Demo
                                     </Button>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
