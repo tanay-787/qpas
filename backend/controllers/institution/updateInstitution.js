@@ -1,45 +1,51 @@
-import { db, auth } from '../../config/firebase.js'; // assuming you're using Firebase Admin SDK for authentication
+import { db } from '../../config/firebase.js';
 
 /**
- * Create a new institution
+ * Update an existing institution
  */
 const updateInstitution = async (req, res) => {
-  const { name, logoUrl, description } = req.body;
+  const updates = req.body; // Get all update fields from request body
   const userId = req.userRecord.uid; // The logged-in user's UID
+  const { institution_id } = req.params; // Get institution ID from URL params
 
   try {
-    const institutionRef = db.collection("institutions").doc();
+    // Get the institution document
+    const institutionRef = db.collection("institutions").doc(institution_id);
+    const institutionDoc = await institutionRef.get();
 
-    // Use a default logo URL if none is provided
-    const placeholderLogoUrl = "https://via.placeholder.com/150?text=Institution+Logo";
+    // Check if institution exists
+    if (!institutionDoc.exists) {
+      return res.status(404).json({ message: "Institution not found" });
+    }
 
-    // Create the institution document
-    await institutionRef.set({
-      inst_id: institutionRef.id, // Unique institution ID
-      name,
-      logoUrl: logoUrl || placeholderLogoUrl, // Default logo URL fallback
-      createdBy: userId, // Reference to the user who created the institution
-      teacher_list: [],
-      student_list: [],
-      created_at: new Date().toISOString(),
-      description: description || "",
-    });
+    // Check if user is authorized to update (should be the admin)
+    const institutionData = institutionDoc.data();
+    if (institutionData.createdBy !== userId) {
+      return res.status(403).json({ message: "Not authorized to update this institution" });
+    }
 
-    const userRef = db.collection('users').doc(userId);
+    // Create an object with only the fields that need to be updated
+    const updateData = {};
 
-    await userRef.update({
-      role: 'admin', // Assign 'admin' role
-      member_of: db.collection('institutions').doc(institutionRef.id), // Add the institution to the 'member_of' field
-    });
+    // Only add fields that were provided in the request
+    if (updates.name !== undefined) updateData.name = updates.name;
+    if (updates.description !== undefined) updateData.description = updates.description;
+    if (updates.logoUrl !== undefined) updateData.logoUrl = updates.logoUrl;
 
-    res.status(201).json({
-      id: institutionRef.id,
-      message: "Institution created successfully and user role updated.",
+    // Add updated_at timestamp
+    updateData.updated_at = new Date().toISOString();
+
+    // Update only the provided fields
+    await institutionRef.update(updateData);
+
+    res.status(200).json({
+      message: "Institution updated successfully",
+      updated: updateData
     });
   } catch (error) {
-    console.error("Error creating institution:", error);
+    console.error("Error updating institution:", error);
     res.status(500).json({
-      message: "Failed to create institution and update user role.",
+      message: "Failed to update institution",
       error: error.message,
     });
   }

@@ -26,11 +26,11 @@ export function useInstitution() {
 const fetchInstitution = async (user) => {
   // Guard clause: Ensure user and role are available
   if (!user?.role) {
-     console.log("Skipping institution fetch: user role not yet available.");
-     // Return null or throw an error depending on desired behavior when role is missing
-     // Returning null allows the query to potentially succeed with null data if role never appears.
-     // Throwing an error will mark the query as failed. Let's return null for now.
-     return null;
+    console.log("Skipping institution fetch: user role not yet available.");
+    // Return null or throw an error depending on desired behavior when role is missing
+    // Returning null allows the query to potentially succeed with null data if role never appears.
+    // Throwing an error will mark the query as failed. Let's return null for now.
+    return null;
   }
 
   // Determine API endpoint based on role
@@ -63,9 +63,9 @@ const createInstitution = async (data) => {
 };
 
 // Update an existing institution
-const updateInstitution = async (data) => {
+const updateInstitution = async ({ inst_id, ...data }) => {
   // PATCH request to update endpoint (assuming PATCH for partial updates)
-  const response = await axios.patch(`/api/institutions/update`, data);
+  const response = await axios.patch(`/api/institutions/${inst_id}/update`, data);
   // Return the data from the response (usually the updated institution object)
   return response.data;
 };
@@ -150,50 +150,40 @@ export function InstitutionProvider({ children }) {
   // --- Effect 1: Show Loading Toast ---
   // Manages the appearance of the "loading" notification
   useEffect(() => {
-    // Show loading toast only when:
-    // 1. A fetch is currently in progress (`isInstitutionFetching` is true).
-    // 2. No loading toast is already active (`loadingToastId.current` is null).
+
     if (isInstitutionFetching && !loadingToastId.current) {
-      // Display the loading toast using sonner and store its ID
       loadingToastId.current = sonner.loading('Fetching institution details...');
       console.log("Sonner: Showing loading toast", loadingToastId.current);
     }
-    // No cleanup needed here as the *second* effect handles dismissal/updates
-  }, [isInstitutionFetching]); // Dependency: Only run when the fetching status changes
 
-  // --- Effect 2: Handle Fetch Result (Success/Error) ---
-  // Manages updating or dismissing the loading toast based on the fetch outcome
+  }, [isInstitutionFetching]);
+
+
   useEffect(() => {
-    // Act only when:
-    // 1. A fetch is *not* currently in progress (`isInstitutionFetching` is false).
-    // 2. A loading toast *was* previously shown for this cycle (`loadingToastId.current` has an ID).
+
     if (!isInstitutionFetching && loadingToastId.current) {
       const toastId = loadingToastId.current; // Capture ID before resetting ref
 
-      // Check the final status of the query
+
       if (institutionStatus === 'success') {
-        // SUCCESS CASE: Update the existing toast to a success message
+
         console.log("Sonner: Updating toast to SUCCESS", toastId, "Data:", institutionData);
         sonner.success(`Successfully fetched ${institutionData?.name || 'your institution'} details.`, {
           id: toastId, // Target the specific toast to update it
           description: 'Institution data loaded.',
           duration: 5000, // Optional: How long the success toast stays visible (ms)
           // Optional Action Button:
-          // action: {
-          //   label: 'Go to Dashboard',
-          //   onClick: () => {
-          //     // Ensure necessary data exists before navigating
-          //     if(institutionData?.inst_id && user?.role) {
-          //       navigate(`/${institutionData.inst_id}/${user.role}/dashboard`);
-          //     } else {
-          //       console.error("Missing data for navigation action", { inst_id: institutionData?.inst_id, role: user?.role });
-          //       sonner.error("Could not determine dashboard path."); // Inform user
-          //     }
-          //   },
-          // }
+          action: {
+            label: 'Go to Dashboard',
+            onClick: () => {
+              // Ensure necessary data exists before navigating
+              if (institutionData?.inst_id && user?.role) {
+                navigate(`/${institutionData.inst_id}/${user.role}/dashboard`);
+              }
+            },
+          }
         });
       } else if (institutionStatus === 'error') {
-        // ERROR CASE: Update the existing toast to an error message
         console.log("Sonner: Updating toast to ERROR", toastId, "Error:", institutionError);
         sonner.error(`Failed to fetch institution: ${institutionError?.message || 'Unknown error'}`, {
           id: toastId, // Target the specific toast to update it
@@ -205,31 +195,18 @@ export function InstitutionProvider({ children }) {
         sonner.dismiss(toastId);
       }
 
-      // Reset the ref *after* handling the result for this fetch cycle
-      // This makes it ready for the next potential fetch operation.
       loadingToastId.current = null;
     }
 
-    // Cleanup for this effect: Potentially dismiss if component unmounts
-    // This is less critical now as the main logic handles dismissal on completion.
-    // return () => {
-    //     if (loadingToastId.current) {
-    //         console.log("Sonner: Cleanup (Effect 2) - Dismissing toast on effect re-run/unmount", loadingToastId.current);
-    //         sonner.dismiss(loadingToastId.current);
-    //         loadingToastId.current = null;
-    //     }
-    // };
 
-  }, [ // Dependencies: Run when these values change
-      isInstitutionFetching,  // To know when fetching stops
-      institutionStatus,      // To know the final outcome ('success', 'error')
-      institutionData,        // Needed for the success message content
-      institutionError,       // Needed for the error message content
-      user?.role              // Needed for the optional navigation action path
-    ]);
+  }, [
+    isInstitutionFetching,  // To know when fetching stops
+    institutionStatus,      // To know the final outcome ('success', 'error')
+    institutionData,        // Needed for the success message content
+    institutionError,       // Needed for the error message content
+    user?.role              // Needed for the optional navigation action path
+  ]);
 
-
-  // --- React Query: Mutations ---
 
   // Mutation for Creating an Institution
   const createInstitutionMutation = useMutation({
@@ -241,9 +218,9 @@ export function InstitutionProvider({ children }) {
       // 2. Show a success notification.
       sonner.success("Institution created successfully!", { description: `Welcome to ${data?.name}` });
       // 3. Optionally navigate the user (e.g., to the new institution's dashboard).
-      // if (data?.inst_id) {
-      //    navigate(`/${data.inst_id}/admin/dashboard`);
-      // }
+      if (data?.inst_id) {
+        navigate(`/${data.id}/admin/dashboard`);
+      }
     },
     onError: (error) => {
       // When creation fails:

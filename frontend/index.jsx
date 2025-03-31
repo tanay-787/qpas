@@ -9,12 +9,12 @@ import { BrowserRouter } from "react-router-dom";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-     <ThemeProvider>
-     <BrowserRouter>
-      <App />
-      <ToasterS richColors closeButton/>
-      <Toaster />
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <App />
+        <ToasterS richColors closeButton />
+        <Toaster />
+      </BrowserRouter>
     </ThemeProvider>
- </React.StrictMode>
+  </React.StrictMode>
 );

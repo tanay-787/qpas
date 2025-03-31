@@ -21,7 +21,7 @@ export default function LogIn() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setIsLoading(true)
-    await signInWithEmail(email, password)
+    await signInWithEmail({ email, password })
     setIsLoading(false)
   }
 
@@ -58,17 +58,17 @@ export default function LogIn() {
               />
             </div>
             <div className="mt-2 text-sm text-muted-foreground">
-            <Link 
-              to="#" 
-              className="text-primary-foreground hover:text-primary-foreground/90 dark:text-primary underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </Link>
-          </div>
+              <Link
+                to="#"
+                className="text-primary-foreground hover:text-primary-foreground/90 dark:text-primary underline-offset-4 hover:underline"
+              >
+                Forgot your password?
+              </Link>
+            </div>
             <Button className="w-full mt-4" type="submit" disabled={isLoading}>
-            {isLoading && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
+              {isLoading && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Log In
             </Button>
           </form>
@@ -90,8 +90,8 @@ export default function LogIn() {
         <CardFooter className="flex flex-col space-y-4">
           <div className="text-sm text-muted-foreground">
             Don't have an account?{" "}
-            <Link 
-              to="/signup" 
+            <Link
+              to="/signup"
               className="text-primary-foreground hover:text-primary-foreground/90 dark:text-primary underline-offset-4 hover:underline"
             >
               Sign up

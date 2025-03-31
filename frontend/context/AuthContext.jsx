@@ -107,7 +107,7 @@ export default function AuthProvider({ children }) {
   const handleAuthSuccess = (fbUser, message) => {
     // Optional: Manually set firebaseUser state for immediate UI feedback,
     // though onAuthStateChanged should handle it shortly after.
-    // setFirebaseUser(fbUser);
+    setFirebaseUser(fbUser);
 
     // Invalidate the user query to trigger refetch of Firestore data
     // The listener *should* catch the change, but invalidation is a safety net
@@ -151,7 +151,7 @@ export default function AuthProvider({ children }) {
     onSuccess: (fbUser) => {
       handleAuthSuccess(fbUser, { title: 'Successfully signed in with Google' });
       // Navigate after successful sign-in if needed
-      // navigate('/dashboard'); // Example
+      navigate('/dashboard'); // Example
     },
     onError: (error) => {
       handleAuthError(error, { title: 'Error signing in with Google' });
@@ -169,7 +169,8 @@ export default function AuthProvider({ children }) {
         title: `Welcome ${fbUser?.displayName || fbUser?.email}`,
         description: 'Successfully Signed in',
       });
-       // navigate('/dashboard'); // Example
+      navigate('/'); // Example
+
     },
     onError: (error) => {
       handleAuthError(error, { title: 'Failed to sign in' });
@@ -201,9 +202,9 @@ export default function AuthProvider({ children }) {
       return fbUser; // Return Firebase user
     },
     onSuccess: (fbUser) => {
-       // Don't show success toast here maybe, navigate instead
-       // handleAuthSuccess(fbUser, { title: "Account Created", description: `Welcome ${fbUser.displayName}` });
-      navigate('/role-selection'); // Or wherever new users should go
+      // Don't show success toast here maybe, navigate instead
+      handleAuthSuccess(fbUser, { title: "Account Created", description: `Welcome ${fbUser.displayName}` });
+      navigate('/browse'); // Or wherever new users should go
     },
     onError: (error) => {
       // Use the original toast for this one as per your example
@@ -263,21 +264,21 @@ export default function AuthProvider({ children }) {
   // handleRoleBasedRouting might need adjustment based on when 'user' (Firestore data) is needed.
   // It might become less necessary if navigation happens within mutation onSuccess callbacks.
   const handleRoleBasedRouting = async () => {
-     if (!isLoggedIn || !user) { // Check both isLoggedIn and if user data is loaded
-       toast({
-         title: "Routing Error",
-         description: "User data not available yet or not logged in.",
-         variant: "destructive"
-       });
-       return;
-     }
-     // Now 'user' is the Firestore data from the useQuery
-     const role = user.role; // Assuming 'role' exists in your Firestore data
-     console.log("User role:", role);
-     // Add your role-based navigation logic here
-     // if (role === 'admin') navigate('/admin');
-     // else navigate('/dashboard');
-   };
+    if (!isLoggedIn || !user) { // Check both isLoggedIn and if user data is loaded
+      toast({
+        title: "Routing Error",
+        description: "User data not available yet or not logged in.",
+        variant: "destructive"
+      });
+      return;
+    }
+    // Now 'user' is the Firestore data from the useQuery
+    const role = user.role; // Assuming 'role' exists in your Firestore data
+    console.log("User role:", role);
+    // Add your role-based navigation logic here
+    // if (role === 'admin') navigate('/admin');
+    // else navigate('/dashboard');
+  };
 
 
   // --- Context Value ---

@@ -127,7 +127,7 @@ export default function FormBuilder() {
       required: field.required || false, // Ensure required is never undefined
       validation: field.validation || {}, // Ensure validation is never undefined
     }));
-    
+
     mutation.mutate({
       institutionId: institution?.inst_id,
       formData,
@@ -199,10 +199,10 @@ export default function FormBuilder() {
             // disabled
             placeholder={`Enter ${field.name}`}
             value={field.value}
-      onChange={(value) => {
-        // Handle phone number change
-        console.log(value);
-      }}
+            onChange={(value) => {
+              // Handle phone number change
+              console.log(value);
+            }}
           />
         );
       case 'textarea':

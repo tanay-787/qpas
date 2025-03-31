@@ -7,6 +7,7 @@ import { getInstitutionByUid } from '../controllers/institution/getInstitutionBy
 import { getInstitutionByMemberOf } from '../controllers/institution/getInstitutionByMemberOf.js';
 import { getAllInstitutions } from '../controllers/institution/getAllInstitutions.js';
 import { setFormDefinition, getFormDefinition } from '../controllers/verification-forms/index.js';
+import { updateInstitution } from '../controllers/institution/updateInstitution.js';
 
 const router = Router();
 
@@ -18,7 +19,7 @@ router.get('/', getAllInstitutions);
 router.post('/create', verifyToken, extractUserData, createInstitution);
 
 //Admin-only: Update institution(Add update controller)
-router.patch('/update', verifyToken, extractUserData, roleCheck('admin'))
+router.patch('/:institution_id/update', verifyToken, extractUserData, roleCheck('admin'), updateInstitution)
 
 
 
@@ -29,7 +30,7 @@ router.patch('/update', verifyToken, extractUserData, roleCheck('admin'))
 router.get('/by-uid', verifyToken, extractUserData, roleCheck('admin'), getInstitutionByUid);
 
 //Members-only
-router.get('/by-memberOf', verifyToken, extractUserData, getInstitutionByMemberOf );
+router.get('/by-memberOf', verifyToken, extractUserData, getInstitutionByMemberOf);
 
 
 

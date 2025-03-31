@@ -20,7 +20,7 @@ export const getTeachers = async (req, res) => {
     const teacherUIDs = institutionData.teacher_list || [];
 
     if (teacherUIDs.length === 0) {
-      return res.status(200).json({ message: 'No teachers found' });
+      return res.status(200).json(teacherUIDs);
     }
     // Fetch user documents for teacher UIDs
     const usersSnapshot = await db.collection('users')
@@ -31,7 +31,7 @@ export const getTeachers = async (req, res) => {
       ...doc.data()
     }));
 
-    
+
 
     res.status(200).json(teachersList);
 
