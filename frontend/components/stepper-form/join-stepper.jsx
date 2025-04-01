@@ -9,7 +9,7 @@ import { SuccessStep } from "./success";
 import { useForm, useWatch } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 const steps = [
   { title: "Select Role", description: "Choose your role" },
