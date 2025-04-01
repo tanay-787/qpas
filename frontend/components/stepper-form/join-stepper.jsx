@@ -9,8 +9,7 @@ import { SuccessStep } from "./success";
 import { useForm, useWatch } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { Loader2, X, CheckCircle } from "lucide-react";
-import { Check } from "lucide-react";
+import { toast } from "react-toastify";
 
 const steps = [
   { title: "Select Role", description: "Choose your role" },
@@ -19,7 +18,6 @@ const steps = [
 ];
 
 export default function JoinStepper({ open, onOpenChange, institution }) {
-  const [serverError, setServerError] = useState(null);
   const { control, handleSubmit, formState: { isValid }, reset } = useForm({
     mode: "onChange",
     defaultValues: { role: "" }
@@ -38,44 +36,28 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
       return response.data;
     },
     onSuccess: () => {
-      setServerError(null);
       reset();
     },
     onError: (error) => {
-      setServerError(error.response?.data?.message || 'Submission failed. Please try again.');
+      toast.error(error.response?.data?.message || 'Submission failed. Please try again.');
     }
   });
 
-  const handleOpenChange = (open) => {
-    onOpenChange(open);
-    if (!open) {
-      reset({ role: "" });
-      setServerError(null);
-    }
-  };
-
   const onSubmit = (data) => {
     const formResponses = Object.entries(data).filter(([key]) => key !== 'role');
-
-    // If there are no form responses, it means there were no form fields
     if (formResponses.length === 0) {
       setHasFormFields(false);
+      toast.error("No form fields available to submit.");
       return;
     }
+    joinWLMutation.mutate(data);
   };
 
-  if (!institution) return null;
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl p-0">
         <Card className="w-full">
           <CardContent className="pt-6">
-            <div className="text-center mb-6">
-              <h2 className="text-xl font-semibold">Join {institution.name}</h2>
-              <p className="text-sm text-muted-foreground">{institution.description}</p>
-            </div>
-
             <Stepper
               initialStep={0}
               orientation="horizontal"
@@ -85,39 +67,20 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
               steps={steps}
               className="mb-8"
             >
-              <Step
-                label="Select Role"
-                state={!selectedRole ? "error" : undefined}
-                errorIcon={X}
-              >
+              <Step label="Select Role">
                 <RoleSelection control={control} institution={institution} />
               </Step>
 
-              <Step
-                label="Join Form"
-                state={joinWLMutation.isPending ? "loading" : serverError ? "error" : undefined}
-                checkIcon={Check}
-                errorIcon={X}
-              >
-                <div className="space-y-4">
-                  <JoinForm
-                    control={control}
-                    institution={institution}
-                    selectedRole={selectedRole}
-                    onSubmit={handleSubmit(onSubmit)}
-                    onOpenChange={handleOpenChange}
-                  />
-                  {serverError && (
-                    <p className="pb-5 text-red-500 text-sm ">Error: {serverError}</p>
-                  )}
-                </div>
+              <Step label="Join Form">
+                <JoinForm
+                  control={control}
+                  institution={institution}
+                  selectedRole={selectedRole}
+                  onSubmit={handleSubmit(onSubmit)}
+                />
               </Step>
 
-              <Step
-                label="Complete"
-                state="completed"
-                checkIcon={<CheckCircle className="w-4 h-4" />}
-              >
+              <Step label="Complete">
                 <SuccessStep institution={institution} />
               </Step>
 
@@ -140,13 +103,11 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
 function StepperControls({ joinWLMutation, isValid, selectedRole, hasFormFields, handleSubmit, onSubmit }) {
   const { prevStep, nextStep, activeStep } = useStepper();
 
-  // Handle successful submission
   useEffect(() => {
     if (joinWLMutation.isSuccess) {
       nextStep();
-      joinWLMutation.reset();
     }
-  }, [joinWLMutation.isSuccess, nextStep, joinWLMutation]);
+  }, [joinWLMutation.isSuccess, nextStep]);
 
   return (
     <CardFooter className="flex justify-between border-t border-border pt-6">
@@ -173,6 +134,6 @@ function StepperControls({ joinWLMutation, isValid, selectedRole, hasFormFields,
           "Next"
         )}
       </Button>
-    </CardFooter >
+    </CardFooter>
   );
 }
