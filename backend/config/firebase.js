@@ -1,5 +1,5 @@
 import admin from "firebase-admin";
-import serviceAccountDev from "./serviceAccountKey.json" assert { type: "json" };
+import serviceAccountDev from "./serviceAccountKey.json" with { type: "json" };
 
 let serviceAccount;
 
