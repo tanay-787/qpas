@@ -1,15 +1,14 @@
 import admin from "firebase-admin";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 
-// Get the directory name using ES module approach
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Initialize Firebase Admin with environment variables
+let serviceAccount;
 
-// Read and parse the JSON file
-const serviceAccountPath = path.join(__dirname, "serviceAccountKey.json");
-const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+// Parse the JSON string from environment variable
+if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+  serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+} else {
+  throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is required');
+}
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
