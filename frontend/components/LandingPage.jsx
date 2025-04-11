@@ -15,7 +15,7 @@ export default function LandingPage() {
                         <Meteors number={20} />
                         <div className="container mx-auto max-w-6xl text-center z-10">
                             <div className="mb-8">
-                                <span className="inline-block px-4 py-2 mb-4 text-sm font-medium rounded-full bg-primary/10 text-primary">
+                                <span className="inline-block px-4 py-2 mb-4 text-sm font-medium rounded-full bg-primary/10 text-primary-foreground dark:text-primary">
                                     Educational Resource Management
                                 </span>
                                 <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">

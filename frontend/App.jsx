@@ -9,7 +9,6 @@ import AdminDashboard from "./components/admin-dashboard/AdminDashboard";
 import BrowseInstitutions from "./components/browse-institutions-page/BrowseInstitutions";
 import SampleDashboard from "./components/SampleDashboard";
 import FormStructureBuilder from "./components/FormStructureBuilder";
-import NavBar from "./components/shared-components/NavBar";
 import { useLocation } from "react-router-dom";
 import AnimatedContent from "@/components/ui/animated-content";
 import TeacherDashboard from "./components/teacher-dashboard/TeacherDashboard";

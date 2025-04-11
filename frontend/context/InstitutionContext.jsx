@@ -91,7 +91,7 @@ const uploadLogo = async (file) => {
 // --- InstitutionProvider Component ---
 export function InstitutionProvider({ children }) {
   // Get user data, token, and auth loading states from AuthContext
-  const { user, userToken, isLoggedIn, isLoading: isAuthLoading } = useAuth();
+  const { user, isLoggedIn, isLoading: isAuthLoading } = useAuth();
   // Get React Query client instance
   const queryClient = useQueryClient();
   // Hook for navigation
@@ -99,25 +99,6 @@ export function InstitutionProvider({ children }) {
   // Ref to store the ID of the loading toast notification
   const loadingToastId = useRef(null);
 
-  // --- Axios Interceptor Setup ---
-  // Adds Authorization header with Firebase token to outgoing requests
-  useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(
-      (config) => {
-        // Add the token only if it exists
-        if (userToken) {
-          config.headers['Authorization'] = `Bearer ${userToken}`;
-        }
-        return config; // Return the modified config
-      },
-      (error) => Promise.reject(error) // Forward request errors
-    );
-
-    // Cleanup function to remove the interceptor when the component unmounts or token changes
-    return () => {
-      axios.interceptors.request.eject(requestInterceptor);
-    };
-  }, [userToken]); // Re-run effect if the userToken changes
 
   // --- React Query: Fetch Institution Data ---
   const {

@@ -7,8 +7,6 @@ import {
   signInWithPopup,
   signOut,
   updateProfile,
-  // Import User type if needed for clarity
-  // type User as FirebaseUser
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, firestore } from '../firebase.config';
@@ -20,6 +18,7 @@ import {
   useMutation,
   useQueryClient, // Import useQueryClient
 } from '@tanstack/react-query';
+import axios from "axios";
 
 // --- Constants for Query Keys ---
 const AUTH_QUERY_KEY = ['auth', 'user'];
@@ -56,29 +55,40 @@ export default function AuthProvider({ children }) {
         try {
           const token = await fbUser.getIdToken();
           setUserToken(token);
-          // Invalidate or refetch the user data query when auth state changes
-          // Invalidation is often preferred as it lets RQ handle refetching
           queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY });
         } catch (error) {
           console.error('Error getting user token:', error);
-          setUserToken(null); // Clear token on error
-          // Optionally clear user data query if token fails?
+          setUserToken(null);
           queryClient.setQueryData(AUTH_QUERY_KEY, null);
         }
       } else {
-        // User logged out
         setUserToken(null);
-        // Clear the user data query cache
         queryClient.setQueryData(AUTH_QUERY_KEY, null);
-        // Optionally remove query completely if desired:
-        // queryClient.removeQueries({ queryKey: AUTH_QUERY_KEY });
       }
-      setInitialAuthLoading(false); // Mark initial check as complete
+      setInitialAuthLoading(false);
     });
 
     // Cleanup listener on unmount
     return () => unsubscribe();
-  }, [queryClient]); // Add queryClient to dependency array
+  }, [queryClient]);
+
+  useEffect(() => {
+    const requestInterceptor = axios.interceptors.request.use(
+      (config) => {
+        // Add the token only if it exists
+        if (userToken) {
+          config.headers['Authorization'] = `Bearer ${userToken}`;
+        }
+        return config; // Return the modified config
+      },
+      (error) => Promise.reject(error) // Forward request errors
+    );
+
+    // Cleanup function to remove the interceptor when the component unmounts or token changes
+    return () => {
+      axios.interceptors.request.eject(requestInterceptor);
+    };
+  }, [userToken]);
 
   // --- React Query to fetch Firestore user data ---
   // This query depends on the firebaseUser's UID
@@ -200,6 +210,12 @@ export default function AuthProvider({ children }) {
       return fbUser; // Return Firebase user
     },
     onSuccess: (fbUser) => {
+      //add a timeout to send welcome email
+      setTimeout(() => {
+        axios.post('/api/n8n/send-welcome-email').catch((err) => {
+          console.error('Failed to trigger welcome email:', err);
+          // Optional: send to Sentry or another logger
+        })},5000)
       // Don't show success toast here maybe, navigate instead
       handleAuthSuccess(fbUser, { title: "Account Created", description: `Welcome ${fbUser.displayName}` });
     },

@@ -10,6 +10,7 @@ import institutionRoutes from "./routes/institutionRoutes.js";
 import waitingLobbyRoutes from "./routes/waitingLobbyRoutes.js";
 import questionPaperRoutes from "./routes/questionPaperRoutes.js";
 import memberRoutes from "./routes/memberRoutes.js";
+import n8nRoutes from "./routes/n8nRoutes.js";
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api/institutions", institutionRoutes);
 app.use("/api/waiting-lobby", waitingLobbyRoutes);
 app.use("/api/question-papers", questionPaperRoutes);
 app.use("/api/members", memberRoutes)
+app.use("/api/n8n", n8nRoutes)
 
 //keep alive mechanism
 app.get("/health", (req, res) => {
@@ -45,6 +47,7 @@ app.get("/health", (req, res) => {
 app.get("*", (req, res) => {
   res.sendFile(join(__dirname, "../frontend/dist", "index.html"));
 });
+
 
 app.listen(process.env.PORT || 3000, () => {
   console.log(`Server is running on port ${process.env.PORT || 3000}`);
