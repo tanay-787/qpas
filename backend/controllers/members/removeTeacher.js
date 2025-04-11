@@ -1,4 +1,7 @@
 import { db, admin } from '../../config/firebase.js';
+// Import the notification utility
+import { addNotification } from '../../utils/notificationUtils.js';
+
 /**
  * Remove a teacher from an institution
  */
@@ -12,6 +15,7 @@ export const removeTeacher = async (req, res) => {
         });
 
         const teacherRef = db.collection('users').doc(teacher_id);
+        //Also delete the role and member_of from the teacher
         await teacherRef.update({
             role: admin.firestore.FieldValue.delete(),
             member_of: admin.firestore.FieldValue.delete(),
@@ -20,6 +24,14 @@ export const removeTeacher = async (req, res) => {
         res.status(200).json({
             message: "Teacher removed successfully.",
         });
+
+        // Add notification *after* sending response (non-blocking)
+        addNotification(
+            teacher_id, // User ID of the removed teacher
+            `You have been removed as a teacher from the institution with ID ${institution_id}.`
+            // No specific link for now
+        );
+
     } catch (error) {
         res.status(500).json({
             message: "Failed to remove teacher.",

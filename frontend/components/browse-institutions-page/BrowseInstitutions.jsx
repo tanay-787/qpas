@@ -10,6 +10,8 @@ import { useAuth } from "../../context/AuthContext"; // Adjust path if needed
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import axios from "axios";
 import JoinStepper from "../stepper-form/join-stepper"; // Adjust path if needed
+import { Loader2 } from "lucide-react";
+import { useInstitution } from "../../context/InstitutionContext";
 
 // Function to fetch all institutions (ensure createdBy is populated)
 const fetchInstitutions = async () => {
@@ -27,6 +29,8 @@ const fetchInstitutions = async () => {
 };
 
 export default function BrowseInstitutions() {
+  const { user } = useAuth();
+  const { institution } = useInstitution();
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isJoinStepperOpen, setIsJoinStepperOpen] = useState(false);
@@ -39,6 +43,7 @@ export default function BrowseInstitutions() {
     queryKey: ["institutions"],
     queryFn: fetchInstitutions,
   });
+
 
   // Filter institutions based on search query
   const filteredInstitutions = institutions
@@ -103,7 +108,7 @@ export default function BrowseInstitutions() {
         <TooltipProvider delayDuration={100}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button onClick={handleCreateInstitution} className="h-11 sm:h-12 px-4 sm:px-5 shrink-0">
+              <Button onClick={handleCreateInstitution} disabled={!user || user.member_of} className="h-11 sm:h-12 px-4 sm:px-5 shrink-0">
                 <Plus className="w-5 h-5 mr-0 sm:mr-2" />
                 <span className="hidden sm:inline">Create</span>
               </Button>
@@ -119,7 +124,7 @@ export default function BrowseInstitutions() {
       {isLoading && (
         <div className="text-center py-16">
           {/* ... loading indicator ... */}
-          <Building2 className="h-12 w-12 animate-pulse mx-auto text-primary/80" />
+          <Loader2 className="h-12 w-12 animate-pulse mx-auto text-primary/80" />
           <p className="mt-4 text-lg text-muted-foreground">Loading institutions...</p>
         </div>
       )}
@@ -175,6 +180,7 @@ export default function BrowseInstitutions() {
                       className="shrink-0 text-muted-foreground hover:text-primary" // Prevent shrinking, style
                       onClick={() => handleJoinInstitutionClick(institution)}
                       aria-label={`Join ${institution.name}`} // Accessibility label
+                      disabled={!user || user.member_of}
                     >
                       <UserPlus className="h-5 w-5" />
                     </Button>

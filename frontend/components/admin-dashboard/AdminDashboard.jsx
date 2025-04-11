@@ -12,7 +12,7 @@ import WaitingLobbyTab from "./WaitingLobbyTab";
 import MembersTab from "./ManageMembersTab";
 import ApplicationFormTab from "./ApplicationFormTab";
 import InstitutionProfileTab from "./InstitutionProfileTab";
-import { fetchMembers, fetchWaitingLobbyRequests, updateTeacherRequestStatus } from "./admin-utility";
+import { fetchMembers, fetchWaitingLobbyRequests, modifyMemberStatus, updateTeacherRequestStatus } from "./admin-utility";
 
 export default function AdminDashboard() {
   const {

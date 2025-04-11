@@ -15,8 +15,22 @@ const getInstitutionByUid = async (req, res) => {
     }
 
     // If there is at least one institution, get the first one
-    const institution = snapshot.docs[0].data();  // Get the first document from snapshot
-    res.status(200).json(institution);  // Return as a single object
+    const institutionDoc = snapshot.docs[0];
+    const institution = institutionDoc.data();
+
+    // Populate the createdBy field with the user object
+    const creatorSnapshot = await db.collection('users').doc(institution.createdBy).get();
+    if (creatorSnapshot.exists) {
+      institution.createdBy = creatorSnapshot.data();
+    } else {
+      institution.createdBy = { // Handle case where creator doesn't exist (deleted user?)
+        uid: institution.createdBy,
+        displayName: 'Unknown User',
+      };
+      console.warn(`Creator with UID ${institution.createdBy} not found`);
+    }
+
+    res.status(200).json(institution);
 
   } catch (error) {
     res.status(500).json({

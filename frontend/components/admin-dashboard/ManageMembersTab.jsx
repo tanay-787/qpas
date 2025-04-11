@@ -93,17 +93,6 @@ export default function ManageMembersTab({ members, loading, onMemberAction, onR
                                             {member.email}
                                         </TableCell>
                                         <TableCell className="flex space-x-2">
-                                            {/* <Button
-                                                variant="secondary"
-                                                size="sm"
-                                                onClick={() => onMemberAction({
-                                                    userId: member.uid,
-                                                    action: 'change-role'
-                                                })}
-                                            >
-                                                <Pencil className="mr-2 h-4 w-4" />
-                                                Change Role
-                                            </Button> */}
                                             <Button
                                                 variant="destructive"
                                                 size="sm"

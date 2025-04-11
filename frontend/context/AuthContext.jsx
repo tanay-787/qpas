@@ -72,23 +72,7 @@ export default function AuthProvider({ children }) {
     return () => unsubscribe();
   }, [queryClient]);
 
-  useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(
-      (config) => {
-        // Add the token only if it exists
-        if (userToken) {
-          config.headers['Authorization'] = `Bearer ${userToken}`;
-        }
-        return config; // Return the modified config
-      },
-      (error) => Promise.reject(error) // Forward request errors
-    );
 
-    // Cleanup function to remove the interceptor when the component unmounts or token changes
-    return () => {
-      axios.interceptors.request.eject(requestInterceptor);
-    };
-  }, [userToken]);
 
   // --- React Query to fetch Firestore user data ---
   // This query depends on the firebaseUser's UID
@@ -241,7 +225,6 @@ export default function AuthProvider({ children }) {
       queryClient.removeQueries({ queryKey: AUTH_QUERY_KEY }); // Remove user data
       // Optionally clear other user-specific data queries
       // queryClient.invalidateQueries({ queryKey: ['user-posts'] }); // Example
-
       // Navigate to home/login page
       navigate('/');
       toast({

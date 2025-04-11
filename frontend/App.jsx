@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import AuthProvider from "./context/AuthContext";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { InstitutionProvider } from "./context/InstitutionContext";
+// Import the NotificationProvider
+import { NotificationProvider } from "./context/NotificationContext";
 import LandingPage from "./components/LandingPage";
 import SignUp from "./components/user-auth/SignUp";
 import LogIn from "./components/user-auth/LogIn";
@@ -15,6 +17,7 @@ import TeacherDashboard from "./components/teacher-dashboard/TeacherDashboard";
 import StudentDashboard from "./components/student-dashboard/StudentDashboard";
 import { TestUI } from '@/components/test-ui'
 import MainLayout from "./components/shared-components/MainLayout";
+import { Toaster } from "@/components/ui/sonner"; // Import Toaster for optional toast notifications
 
 const queryClient = new QueryClient();
 
@@ -25,36 +28,41 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <InstitutionProvider>
-          <AnimatedContent
-            distance={100}
-            direction="vertical"
-            reverse={false}
-            config={{ tension: 50, friction: 25 }}
-            initialOpacity={0.0}
-            animateOpacity
-            scale={1.0}
-            threshold={0.1}
-          >
-            <Routes>
-              {/* Auth Routes - No NavBar */}
-              <Route path="/signup" element={<SignUp />} />
-              <Route path="/login" element={<LogIn />} />
+        {/* Wrap InstitutionProvider with NotificationProvider */}
+        <NotificationProvider>
+          <InstitutionProvider>
+            <AnimatedContent
+              distance={100}
+              direction="vertical"
+              reverse={false}
+              config={{ tension: 50, friction: 25 }}
+              initialOpacity={0.0}
+              animateOpacity
+              scale={1.0}
+              threshold={0.1}
+            >
+              <Routes>
+                {/* Auth Routes - No NavBar */}
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/login" element={<LogIn />} />
 
-              {/* Routes with NavBar */}
-              <Route element={<MainLayout />}>
-                <Route path="/" element={<LandingPage />} />
-                <Route path="/browse-institutions" element={<BrowseInstitutions />} />
-                <Route path="/sample" element={<SampleDashboard />} />
-                <Route path="/institutions/:institution_id/form-builder" element={<FormStructureBuilder />} />
-                <Route path="/:institution_id/admin/dashboard" element={<AdminDashboard />} />
-                <Route path="/:institution_id/teacher/dashboard" element={<TeacherDashboard />} />
-                <Route path="/:institution_id/student/dashboard" element={<StudentDashboard />} />
-                <Route path="/test-ui" element={<TestUI />} />
-              </Route>
-            </Routes>
-          </AnimatedContent>
-        </InstitutionProvider>
+                {/* Routes with NavBar */}
+                <Route element={<MainLayout />}>
+                  <Route path="/" element={<LandingPage />} />
+                  <Route path="/browse-institutions" element={<BrowseInstitutions />} />
+                  <Route path="/sample" element={<SampleDashboard />} />
+                  <Route path="/institutions/:institution_id/form-builder" element={<FormStructureBuilder />} />
+                  <Route path="/:institution_id/admin/dashboard" element={<AdminDashboard />} />
+                  <Route path="/:institution_id/teacher/dashboard" element={<TeacherDashboard />} />
+                  <Route path="/:institution_id/student/dashboard" element={<StudentDashboard />} />
+                  <Route path="/test-ui" element={<TestUI />} />
+                </Route>
+              </Routes>
+            </AnimatedContent>
+             {/* Add the Toaster component here for toast notifications */}
+            <Toaster />
+          </InstitutionProvider>
+        </NotificationProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
