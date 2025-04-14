@@ -18,6 +18,7 @@ import StudentDashboard from "./components/student-dashboard/StudentDashboard";
 import { TestUI } from '@/components/test-ui'
 import MainLayout from "./components/shared-components/MainLayout";
 import { Toaster } from "@/components/ui/sonner"; // Import Toaster for optional toast notifications
+import UserProfile from "./components/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ export default function App() {
                   <Route path="/:institution_id/teacher/dashboard" element={<TeacherDashboard />} />
                   <Route path="/:institution_id/student/dashboard" element={<StudentDashboard />} />
                   <Route path="/test-ui" element={<TestUI />} />
+                  <Route path="/user-profile" element={<UserProfile />} />
                 </Route>
               </Routes>
             </AnimatedContent>

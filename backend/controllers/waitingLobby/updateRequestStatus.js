@@ -63,7 +63,7 @@ const updateRequestStatus = async (req, res) => {
       addNotification(
         user_id,
         `Your request to join "${institutionName}" as a ${roleRequested} has been approved.`,
-        `/${institution_id}/${roleRequested}/dashboard`
+        'success'
       );
 
     } else if (action === 'reject') {

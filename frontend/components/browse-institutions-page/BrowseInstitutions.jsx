@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"; // Removed CardFooter
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Building2, Plus, UserPlus } from "lucide-react"; // Added UserPlus icon
+import { Search, Ellipsis, Plus, UserPlus } from "lucide-react"; // Added UserPlus icon
 import { useState } from "react";
 import CreateInstitutionDialog from "./create-institution-dialog"; // Adjust path if needed
 import { useAuth } from "../../context/AuthContext"; // Adjust path if needed
@@ -124,7 +124,7 @@ export default function BrowseInstitutions() {
       {isLoading && (
         <div className="text-center py-16">
           {/* ... loading indicator ... */}
-          <Loader2 className="h-12 w-12 animate-pulse mx-auto text-primary/80" />
+          <Ellipsis className="h-12 w-12 animate-pulse mx-auto text-primary/80" />
           <p className="mt-4 text-lg text-muted-foreground">Loading institutions...</p>
         </div>
       )}

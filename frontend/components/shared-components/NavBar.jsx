@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Link } from "react-router-dom";
+import { Link, Route, Routes } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -14,21 +14,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Search,
-  Heart,
-  ShoppingBag,
-  ChevronDown,
   Menu,
   LogIn,
   CircleUser,
-  User,
   LayoutDashboard // Added LayoutDashboard
 } from "lucide-react";
 import { ModeToggle } from "@/components/mode-toggle";
@@ -42,12 +30,12 @@ import NotificationBell from "../notifications/NotificationBell";
 
 const MenuContent = () => (
   <div className="space-y-4">
-    <a href="#" className="block text-lg hover:underline">
+    <Link to="/" className="block text-lg hover:underline">
       Home
-    </a>
-    <a href="/browse-institutions" className="block text-lg hover:underline">
+    </Link>
+    <Link to="/browse-institutions" className="block text-lg hover:underline">
       Browse
-    </a>
+    </Link>
   </div>
 );
 
@@ -73,7 +61,6 @@ export default function NavBar() {
   }, [theme]);
 
   const handleDashboardNavigation = () => {
-    //current window name
     if (window.location.pathname.includes("dashboard")) {
       return;
     }
@@ -163,7 +150,7 @@ export default function NavBar() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/profile')}>Profile</DropdownMenuItem> {/* Example: Add profile link */}
+              <DropdownMenuItem onClick={() => navigate('/user-profile')}>Profile</DropdownMenuItem> {/* Example: Add profile link */}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleUserLogout}>
                 Logout

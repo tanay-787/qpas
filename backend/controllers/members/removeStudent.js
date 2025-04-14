@@ -42,7 +42,7 @@ export const removeStudent = async (req, res) => {
         addNotification(
             student_id, // User ID of the removed student
             `You have been removed as a student from ${institutionName}.`,
-            // No specific link for now
+            'danger'
         );
     } catch (error) {
         res.status(500).json({
