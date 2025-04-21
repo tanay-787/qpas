@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -7,22 +7,35 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { FcGoogle } from "react-icons/fc"
 import { Loader2, Mail } from "lucide-react"
 import { Link, useNavigate } from 'react-router-dom'
-import { useEffect } from 'react'
-import { useToast } from '@/hooks/use-toast'
+import { toast } from 'sonner'
 
 export default function LogIn() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { signInWithEmail, signInWithGoogle } = useAuth()
+  const { signInWithEmail, signInWithGoogle, isLoggedIn } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
-  const { toast } = useToast()
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-    await signInWithEmail({ email, password })
-    setIsLoading(false)
+    try {
+      e.preventDefault()
+      setIsLoading(true)
+      if(!isLoggedIn){ 
+        await signInWithEmail({ email, password })
+      }else{
+
+        toast.info('Already Logged In', {
+          description: 'You are already logged in. Redirecting to home page.',
+          action: {
+            label: 'Go to Home',
+            onClick: () => navigate('/'),
+          },
+        });
+
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (

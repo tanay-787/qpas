@@ -11,6 +11,7 @@ import waitingLobbyRoutes from "./routes/waitingLobbyRoutes.js";
 import questionPaperRoutes from "./routes/questionPaperRoutes.js";
 import memberRoutes from "./routes/memberRoutes.js";
 import n8nRoutes from "./routes/n8nRoutes.js";
+import profileRoutes from "./routes/profileRoutes.js";
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use("/api/waiting-lobby", waitingLobbyRoutes);
 app.use("/api/question-papers", questionPaperRoutes);
 app.use("/api/members", memberRoutes)
 app.use("/api/n8n", n8nRoutes)
+app.use("api/profile", profileRoutes);
 
 //keep alive mechanism
 app.get("/health", (req, res) => {

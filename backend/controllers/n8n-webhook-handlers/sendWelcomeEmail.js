@@ -16,9 +16,8 @@ export const sendWelcomeEmail = async (req, res) => {
       }
     });
 
-    return res.status(200).json({ message: 'Welcome email triggered.' });
+    res.status(200).json({ message: 'Welcome email triggered.' });
   } catch (error) {
-    console.error(error);
-    return res.status(401).json({ error: error.message});
+    res.status(401).json({ error: error.message});
   }
 };

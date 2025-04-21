@@ -17,7 +17,6 @@ import TeacherDashboard from "./components/teacher-dashboard/TeacherDashboard";
 import StudentDashboard from "./components/student-dashboard/StudentDashboard";
 import { TestUI } from '@/components/test-ui';
 import MainLayout from "./components/shared-components/MainLayout";
-import { Toaster } from "@/components/ui/sonner"; // Import Toaster for optional toast notifications
 import UserProfile from "./components/UserProfile";
 import ProtectedRoute from "./components/shared-components/ProtectedRoute"; // Import ProtectedRoute
 
@@ -88,8 +87,6 @@ export default function App() {
                 </Route>
               </Routes>
             </AnimatedContent>
-            {/* Add the Toaster component here for toast notifications */}
-            <Toaster />
           </InstitutionProvider>
         </NotificationProvider>
       </AuthProvider>

@@ -128,6 +128,7 @@ export default function CreateInstitutionDialog({ open, onOpenChange }) {
           return; // Stop onSubmit execution
         }
       }
+      onOpenChange(false);
 
       // Step 3: Final Success
       sonner.success(`Institution "${institutionName}" created successfully!`);
@@ -138,6 +139,8 @@ export default function CreateInstitutionDialog({ open, onOpenChange }) {
 
     } catch (error) {
       console.error("Error during institution creation process:", error);
+      sonner.error("Error during institution creation process", { description: error.message || "Please try again later." })
+      onOpenChange(false);
     }
     // No finally block, rely on isSubmitting/isProcessing for loading state
   };

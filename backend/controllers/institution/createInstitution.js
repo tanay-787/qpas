@@ -4,10 +4,22 @@ import { db } from "../../config/firebase.js"; // assuming you're using Firebase
  * Create a new institution
  */
 const createInstitution = async (req, res) => {
-  const { instId, name, logoUrl, description } = req.body;
+  const { name, logoUrl, description } = req.body;
   const userId = req.userRecord.uid; // The logged-in user's UID
 
   try {
+    //Check for is there a insitution with the same createdBy, and if there is, throw an error
+    const existingInstitution = await db
+      .collection("institutions")
+      .where("createdBy", "==", userId)
+      .get();
+
+    if (!existingInstitution.empty) {
+      return res.status(400).json({
+        message: "User is already an Admin of a different institution",
+      });
+    }
+    // Create a new institution document
     const institutionRef = db.collection("institutions").doc();
 
     // Use a default logo URL if none is provided
@@ -33,7 +45,8 @@ const createInstitution = async (req, res) => {
     });
 
     res.status(201).json({
-      id: institutionRef.id,
+      inst_id: institutionRef.id,
+      name: name,
       message: "Institution created successfully and user role updated.",
     });
   } catch (error) {
