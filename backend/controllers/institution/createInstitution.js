@@ -1,5 +1,4 @@
-import { db } from "../../config/firebase.js"; // assuming you're using Firebase Admin SDK for authentication
-
+import { db } from "../../config/firebase.js";
 /**
  * Create a new institution
  */

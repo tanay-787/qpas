@@ -22,7 +22,7 @@ const fetchFormFields = async (institutionId, selectedRole) => {
   if (!institutionId || !selectedRole) return []; // Should not happen if enabled correctly
 
   try {
-    const response = await axios.get(`/api/institutions/${institutionId}/${selectedRole}/form`);
+    const response = await axios.get(`/api/institutions/${institutionId}/form-definition?role=${selectedRole}`);
     // Ensure response.data is always an array
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
@@ -75,18 +75,6 @@ export function JoinForm({ control, institution, selectedRole, formFieldsQueryKe
     // Add specific validation rules based on field.validation if needed here
     const rules = {
         required: field.required ? `${field.label || field.name} is required` : false,
-        ...(field.validation?.pattern && {
-            pattern: {
-              value: new RegExp(field.validation.pattern),
-              message: field.validation.message || `Invalid format for ${field.label || field.name}`
-            }
-        }),
-        ...(field.validation?.min !== undefined && { min: { value: field.validation.min, message: `${field.label || field.name} must be at least ${field.validation.min}` } }),
-        ...(field.validation?.max !== undefined && { max: { value: field.validation.max, message: `${field.label || field.name} must be no more than ${field.validation.max}` } }),
-        ...(field.validation?.minLength !== undefined && { minLength: { value: field.validation.minLength, message: `${field.label || field.name} must be at least ${field.validation.minLength} characters` } }),
-        ...(field.validation?.maxLength !== undefined && { maxLength: { value: field.validation.maxLength, message: `${field.label || field.name} must be no more than ${field.validation.maxLength} characters` } }),
-        // Add other validations like email, url etc. if needed
-        ...(field.type === 'email' && { pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: "Invalid email address" } }),
     };
 
     switch (field.type) {
@@ -124,8 +112,6 @@ export function JoinForm({ control, institution, selectedRole, formFieldsQueryKe
                 onSelect={(date) => onChange(date?.toISOString() || null)}
                 className={commonProps.className}
                 placeholderText={commonProps.placeholder} // Use placeholderText for react-datepicker
-                {...(field.validation?.min && { minDate: new Date(field.validation.min) })}
-                {...(field.validation?.max && { maxDate: new Date(field.validation.max) })}
               />
             )}
           />
@@ -347,12 +333,6 @@ export function JoinForm({ control, institution, selectedRole, formFieldsQueryKe
                {/* Render description if not a checkbox and description exists */}
                {field.type !== "checkbox" && field.description && (
                  <p className="text-xs text-muted-foreground pt-1">{field.description}</p>
-               )}
-               {/* Render validation error message */}
-               {fieldError && (
-                 <p id={`${field.id || fieldName}-error`} className="text-xs text-destructive pt-1" role="alert">
-                   {fieldError.message}
-                 </p>
                )}
              </div>
            );

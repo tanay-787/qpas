@@ -10,7 +10,6 @@ import { useAuth } from "../../context/AuthContext"; // Adjust path if needed
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import axios from "axios";
 import JoinStepper from "../stepper-form/join-stepper"; // Adjust path if needed
-import { Loader2 } from "lucide-react";
 import { useInstitution } from "../../context/InstitutionContext";
 
 // Function to fetch all institutions (ensure createdBy is populated)

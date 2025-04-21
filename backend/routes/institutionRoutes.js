@@ -40,11 +40,8 @@ router.get('/by-memberOf', verifyToken, extractUserData, getInstitutionByMemberO
 // Admin-only: Set form definition for an institution
 router.post('/:institution_id/form-definition', verifyToken, extractUserData, roleCheck('admin'), setFormDefinition);
 
-// Get form definition for an institution(teacher)
-router.get('/:institution_id/teacher/form', verifyToken, extractUserData, getFormDefinition);
-
-// Get form definition for an institution(student)
-router.get('/:institution_id/student/form', verifyToken, extractUserData, getFormDefinition);
+// Get form definition for an institution
+router.get('/:institution_id/form-definition', verifyToken, extractUserData, getFormDefinition);
 
 
 

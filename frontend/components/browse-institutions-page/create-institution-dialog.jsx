@@ -99,50 +99,52 @@ export default function CreateInstitutionDialog({ open, onOpenChange }) {
       const { logoFile: logoFileInput, ...institutionData } = data;
       const createdInstitution = await createInstitution(institutionData);
 
-      // Validate response
-      if (!createdInstitution?.inst_id) { // Use optional chaining
+      console.log("Response from createInstitution function:", createdInstitution);
+
+      createdInstitutionId = createdInstitution?.inst_id; // Access inst_id
+      institutionName = createdInstitution?.name || institutionName;
+
+      // Basic Validation (Ensure inst_id is present)
+      if (!createdInstitutionId) {
         throw new Error("Failed to create institution. Invalid response from server.");
       }
-      
-      createdInstitutionId = createdInstitution.inst_id;
-      institutionName = createdInstitution.name || institutionName;
-      console.log(`Institution created with ID: ${createdInstitutionId}`);
+
+      console.log(`Institution creation initiated with ID: ${createdInstitutionId}. Waiting for onSuccess.`);
 
       // Step 2: Logo Upload & Update (if applicable)
-      if (createdInstitutionId && logoFileInput?.[0]) { // Use optional chaining
+      if (logoFileInput?.[0]) { // Check if a logo file was selected
         console.log("Uploading logo...");
         try {
           const logoUrl = await uploadLogo(logoFileInput[0]);
-          console.log(`Logo uploaded: ${logoUrl}`);
           await updateInstitution({ inst_id: createdInstitutionId, logoUrl });
-          console.log("Institution updated with logo.");
+
+          sonner.success("Logo uploaded and linked successfully!"); // Toast for logo success
+
         } catch (uploadOrUpdateError) {
+
           console.error("Error during logo upload/update:", uploadOrUpdateError);
-          sonner.error(`Institution "${institutionName}" created, but failed to add logo.`, {
+
+          sonner.error(`Failed to add logo to "${institutionName}".`, {
             description: uploadOrUpdateError.message || "Please try updating later.",
           });
-          if (isMounted.current) { // Check if component still mounted before navigation/state changes
-            resetFormAndCloseDialog(true); // Still reset and close
-            navigate(`/institutions/${createdInstitutionId}/settings`); // Redirect to settings
-          }
-          return; // Stop onSubmit execution
         }
       }
-      onOpenChange(false);
 
-      // Step 3: Final Success
-      sonner.success(`Institution "${institutionName}" created successfully!`);
+      // Close the dialog after successful creation (and optional logo upload attempt)
       if (isMounted.current) {
         resetFormAndCloseDialog(true); // Reset and close
-        navigate(`/institutions/${createdInstitutionId}/form-builder`); // Navigate
       }
 
     } catch (error) {
-      console.error("Error during institution creation process:", error);
-      sonner.error("Error during institution creation process", { description: error.message || "Please try again later." })
-      onOpenChange(false);
+      console.error("Error during institution creation process (onSubmit):");
+      console.error(error);
+       // Error handling is primarily done in onError of the mutation
+      // We might show a generic toast here if needed, but the specific one is in onError
+      // sonner.error("Institution Creation Failed", { description: error.message || "Please try again." });
+       if (isMounted.current) {
+           onOpenChange(false); // Close dialog on error too
+       }
     }
-    // No finally block, rely on isSubmitting/isProcessing for loading state
   };
 
   // Renamed helper for clarity

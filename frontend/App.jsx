@@ -52,8 +52,6 @@ export default function App() {
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/browse-institutions" element={<BrowseInstitutions />} />
                   <Route path="/sample" element={<SampleDashboard />} />
-                  {/* Form Builder might also need protection depending on requirements */}
-                  <Route path="/institutions/:institution_id/form-builder" element={<FormStructureBuilder />} />
 
                   {/* Protected Dashboard Routes */}
                   <Route

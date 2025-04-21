@@ -142,15 +142,23 @@ export function InstitutionProvider({ children }) {
   // Mutation for Creating an Institution
   const createInstitutionMutation = useMutation({
     mutationFn: createInstitution, // The function that performs the API call
-    onSuccess: (data) => {
-      // When creation is successful:
-      // 1. Invalidate the 'institution' query cache to force a refetch of the user's institution data.
-      queryClient.invalidateQueries({ queryKey: ['institution', user?.uid] });
-      // 2. Show a success notification.
-      sonner.success("Institution created successfully!", { description: `Welcome to ${data?.name}` });
-      // 3. Optionally navigate the user (e.g., to the new institution's dashboard).
-      if (data?.inst_id) {
-        navigate(`/${data.id}/admin/dashboard`);
+    onSuccess: async (data) => {
+      try {
+        // Just refetch and await it
+        await refetchInstitution();
+
+        sonner.success("Institution created successfully!", {
+          description: `Welcome to ${data?.name || 'your new institution'}!`,
+        });
+
+        if (data?.inst_id) {
+          navigate(`/${data.inst_id}/admin/dashboard`);
+        }
+      } catch (err) {
+        console.error("Error during post-creation steps:", err);
+        sonner.error("Something went wrong", {
+          description: err.message || "Please try again.",
+        });
       }
     },
     onError: (error) => {

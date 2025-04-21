@@ -1,11 +1,13 @@
-const { db, admin } = require('../../config/firebase');
-const leaveInstitution = async (req, res) => {
+import { db, admin } from "../../config/firebase.js";
+
+
+export const leaveInstitution = async (req, res) => {
   try {
     // Get the user ID from the request
     const userId = req.user.uid;
 
     // Get the institution ID from the request body
-    const institutionId = req.userRecord.belongsTo;
+    const institutionId = req.userRecord.member_of;
 
     // Get references to the user and institution documents
     const userRef = db.collection('users').doc(userId);
@@ -39,5 +41,3 @@ const leaveInstitution = async (req, res) => {
     res.status(500).json({ message: 'An error occurred while leaving the institution' });
   }
 };
-
-module.exports = leaveInstitution;

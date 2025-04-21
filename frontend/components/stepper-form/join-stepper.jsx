@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
-import { Stepper, Step, useStepper } from "@/components/ui/stepper"; // Assuming useStepper is exported correctly
+import { Stepper, Step, useStepper } from "@/components/ui/stepper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { DialogContent, Dialog } from "@/components/ui/dialog";
 import { RoleSelection } from "./role-selection";
 import { JoinForm } from "./join-form";
 import { SuccessStep } from "./success";
-import { useForm, useWatch } from "react-hook-form";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useForm, useWatch, useFormState } from "react-hook-form";
+// --- REMOVE useQueryState, ADD useQuery ---
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "sonner";
-import { Skeleton } from "@/components/ui/skeleton"; // For loading state
+import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 
 const steps = [
   { id: "role", title: "Select Role", description: "Choose your role" },
@@ -20,118 +22,134 @@ const steps = [
 
 export default function JoinStepper({ open, onOpenChange, institution }) {
   const queryClient = useQueryClient();
-  const { control, handleSubmit, formState: { isValid }, reset, trigger, getValues } = useForm({
-    mode: "onChange", // Validate on change
-    defaultValues: { role: "" } // Initialize role
+  const {
+    control,
+    handleSubmit,
+    reset,
+    trigger,
+    getValues
+  } = useForm({
+    mode: "onChange",
+    defaultValues: { role: "" }
   });
   const selectedRole = useWatch({ control, name: "role" });
 
-  // Fetch form fields status (needed for button disabling)
+  // Define the query key
   const formFieldsQueryKey = ["formFields", institution?.inst_id, selectedRole];
-  const formFieldsQuery = queryClient.getQueryState(formFieldsQueryKey);
-  const formFieldsData = queryClient.getQueryData(formFieldsQueryKey);
-  const isLoadingFormFields = formFieldsQuery?.status === 'pending';
+
+  // --- Use useQuery to OBSERVE the state of the query managed by JoinForm ---
+  const {
+    status: formFieldsStatus, // Get the status ('pending', 'success', 'error')
+    data: formFieldsData,     // Get the data
+    isPending: isLoadingFormFields, // Directly use isPending for loading state
+    isSuccess: formFieldsIsSuccess, // Get success status
+    // error: formFieldsError, // Optionally get error if needed here
+  } = useQuery({
+    queryKey: formFieldsQueryKey,
+    // No queryFn needed here if JoinForm handles the fetching.
+    // TanStack Query reads from the cache based on the key.
+    enabled: !!institution?.inst_id && !!selectedRole, // Should match JoinForm's enabled condition
+    // You might want to match staleTime etc. if JoinStepper could potentially trigger the first fetch
+    // staleTime: 5 * 60 * 1000,
+    // refetchOnWindowFocus: false,
+  });
+
+  // Derive necessary states from the useQuery result
   const hasFormFields = !!formFieldsData && formFieldsData.length > 0;
-  // Determine if the form step is truly skippable (no fields fetched and query succeeded)
-  const canSkipFormStep = formFieldsQuery?.status === 'success' && !hasFormFields;
+  // Determine if the form step is truly skippable (query succeeded with no fields)
+  const canSkipFormStep = formFieldsIsSuccess && !hasFormFields;
 
   useEffect(() => {
-    // When role changes, clear previous form field values and re-validate
-    // Get all current form values
     const currentValues = getValues();
     const keysToReset = Object.keys(currentValues).filter(key => key !== 'role');
     const resetValues = keysToReset.reduce((acc, key) => {
-      acc[key] = undefined; // Reset dynamic fields to undefined
+      acc[key] = undefined;
       return acc;
-    }, { role: selectedRole }); // Keep the selected role
+    }, { role: selectedRole });
 
     reset(resetValues, { keepDefaultValues: false, keepErrors: false });
-
-    // Optionally trigger validation if needed immediately after reset
-    // trigger();
+     // You might need to re-trigger validation if necessary, but be careful
+     // Consider if validation should only happen on user interaction within the form step
+     // if (selectedRole) {
+     //   trigger(); // Maybe trigger specific fields if needed
+     // }
 
   }, [selectedRole, reset, getValues, trigger]);
 
 
   const joinWLMutation = useMutation({
     mutationFn: async (formData) => {
-      // Filter out just the dynamic form fields (exclude 'role')
       const formResponses = Object.entries(formData)
-        .filter(([key]) => key !== 'role' && formData[key] !== undefined && formData[key] !== null && formData[key] !== '') // Ensure only submitted fields are sent
-        .map(([field_id, value]) => ({ field_id, value })); // Assuming field 'name' is used as field_id
-
-      // Handle file uploads if necessary - this example assumes simple values
-      // You might need FormData for file uploads
+        .filter(([key]) => key !== 'role' && formData[key] !== undefined && formData[key] !== null && formData[key] !== '')
+        .map(([field_id, value]) => ({ field_id, value }));
 
       const transformedData = {
         role_requested: selectedRole,
-        // Send empty array if no fields were present or filled
         form_responses: formResponses
       };
 
-      console.log("Submitting Data:", transformedData); // For debugging
+      console.log("Submitting Data:", transformedData);
 
       const response = await axios.post(`/api/waiting-lobby/${institution.inst_id}/join`, transformedData);
       return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => { // Added parameters for context if needed
       toast.success("Application submitted successfully!");
-      // Resetting here might clear state before SuccessStep is fully shown
-      // Consider resetting when the dialog closes or explicitly needed
-      // reset({ role: "" }); // Reset entire form including role
+       queryClient.invalidateQueries({ queryKey: ['waitingLobbyStatus', institution.inst_id] }); // Example invalidation
+       // Do NOT reset form here. Let StepperControls handle navigation based on isSuccess.
+       // Resetting clears the form before the SuccessStep is visible.
     },
     onError: (error) => {
       toast.error(error.response?.data?.message || 'Submission failed. Please try again.');
     }
   });
 
-  // This is the single onSubmit handler triggered by StepperControls
   const onSubmit = (data) => {
-    console.log("Form Data Validated:", data); // For debugging
-    // The mutation expects the full form data
+    console.log("Form Data Validated:", data);
     joinWLMutation.mutate(data);
   };
 
-  // Handle Dialog close - reset form state?
   const handleOpenChange = (isOpen) => {
     if (!isOpen) {
        reset({ role: "" }); // Reset form when dialog closes
-       // Potentially reset stepper state if the library allows
+       // Reset mutation state if necessary
+       joinWLMutation.reset();
+       // Reset stepper state if the library provides a way and it's needed
+       // e.g., if you have access to a reset function from useStepper: stepper.reset()
     }
     onOpenChange(isOpen);
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-3xl p-0 sm:max-w-2xl"> {/* Adjusted max-width */}
-        <Card className="w-full border-0 shadow-none"> {/* Removed border/shadow */}
-          <CardContent className="p-6"> {/* Adjusted padding */}
+      <DialogContent className="max-w-3xl p-0 sm:max-w-2xl">
+        <Card className="w-full border-0 shadow-none">
+          <CardContent className="p-6">
             <Stepper
               initialStep={0}
               orientation="horizontal"
               steps={steps}
-              className="mb-6" // Reduced margin
+              className="mb-6"
             >
-              {/* Use Step component directly with content */}
               {steps.map((step, index) => (
                 <Step key={step.id} label={step.title}>
-                  <div className="mt-6 min-h-[250px] px-1"> {/* Added padding & min-height */}
+                  <div className="mt-6 min-h-[250px] px-1">
                     {index === 0 && (
                       <RoleSelection control={control} />
                     )}
-                    {index === 1 && selectedRole && ( // Only render JoinForm if a role is selected
+                    {index === 1 && selectedRole && (
                       <JoinForm
-                        key={selectedRole} // Add key to force re-render on role change
+                        key={selectedRole} // Key helps reset form state implicitly on role change
                         control={control}
                         institution={institution}
                         selectedRole={selectedRole}
-                        formFieldsQueryKey={formFieldsQueryKey} // Pass key for query access
+                        formFieldsQueryKey={formFieldsQueryKey} // Pass key for query management
                       />
                     )}
-                    {/* Show skeleton/message if role selected but form loading/empty */}
                     {index === 1 && !selectedRole && (
                          <p className="text-center text-muted-foreground">Please select a role first.</p>
                     )}
+                     {/* SuccessStep should only show mutation success state ideally, controlled by Stepper */}
                     {index === 2 && (
                       <SuccessStep institution={institution} />
                     )}
@@ -141,14 +159,16 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
 
               {/* Pass all necessary props to StepperControls */}
               <StepperControls
+              open={open}
+              onOpenChange={handleOpenChange}
+                control={control}
                 joinWLMutation={joinWLMutation}
-                isValid={isValid}
                 selectedRole={selectedRole}
-                // Pass form field status
+                // Pass form field status derived from useQuery
                 isLoadingFormFields={isLoadingFormFields}
                 canSkipFormStep={canSkipFormStep}
                 hasFormFields={hasFormFields}
-                // Pass the actual submit handler
+                // Pass the actual submit handler wrapped in handleSubmit
                 onSubmit={handleSubmit(onSubmit)}
               />
             </Stepper>
@@ -159,56 +179,90 @@ export default function JoinStepper({ open, onOpenChange, institution }) {
   );
 }
 
-// 2. StepperControls.jsx (Handles Buttons & Navigation)
+// --- StepperControls.jsx (No changes needed based on this error) ---
+// Make sure StepperControls correctly uses the props passed down:
+// isLoadingFormFields, canSkipFormStep, hasFormFields
 function StepperControls({
+  open,
+  onOpenChange,
+  control,
   joinWLMutation,
-  isValid,
   selectedRole,
-  isLoadingFormFields,
-  canSkipFormStep,
-  hasFormFields,
-  onSubmit // This is now handleSubmit(onSubmit) from the parent
+  isLoadingFormFields, // derived from useQuery in parent
+  canSkipFormStep,    // derived from useQuery in parent
+  hasFormFields,      // derived from useQuery in parent
+  onSubmit // This is handleSubmit(onSubmit) from the parent
 }) {
-  const { prevStep, nextStep, activeStep, isDisabledStep, isLastStep, isOptionalStep } = useStepper();
+  const { prevStep, nextStep, activeStep, isDisabledStep, isLastStep, isOptionalStep, goToStep } = useStepper();
+  const { isValid, errors, isDirty } = useFormState({ control }); // Get RHF state
+
+  // Log relevant state for debugging button logic
+  useEffect(() => {
+    console.log("StepperControls Update:", {
+      activeStep,
+      isLastStep,
+      isValid,
+      isDirty,
+      selectedRole: !!selectedRole,
+      isLoadingFormFields,
+      canSkipFormStep,
+      hasFormFields,
+      mutationPending: joinWLMutation.isPending,
+      mutationSuccess: joinWLMutation.isSuccess,
+      // errors // Can be noisy, uncomment if needed
+    });
+  }, [activeStep, isLastStep, isValid, isDirty, selectedRole, isLoadingFormFields, canSkipFormStep, hasFormFields, joinWLMutation.isPending, joinWLMutation.isSuccess]);
 
   useEffect(() => {
-    // Navigate to success step only after mutation is successful
+    // Navigate to success step *after* mutation is successful
+    // This should happen *after* the submit button was clicked and mutation finished
     if (joinWLMutation.isSuccess) {
-      // Ensure we are on the form step before automatically moving next
-      if (activeStep === 1) {
-          nextStep();
-      }
+       // Check if we are currently on the form step (index 1)
+       // Or maybe the component triggering mutation isn't tied to the step index
+       // Ensure this logic fits your stepper's flow.
+       if (activeStep === 1 && !isLastStep) { // Only move if on form step and not already last
+            nextStep();
+       }
+       // If the mutation could theoretically succeed from another step, adjust logic.
     }
-  }, [joinWLMutation.isSuccess, nextStep, activeStep]);
+  }, [joinWLMutation.isSuccess, nextStep, activeStep, isLastStep]);
+
 
   const isFirstStep = activeStep === 0;
   const isFormStep = activeStep === 1;
 
-  // Determine if the "Next" button for the form step should be enabled
-  // It's enabled if:
-  // 1. Form fields exist AND the form is valid OR
-  // 2. Form fields don't exist (and query finished), allowing skip
-  const canProceedFromForm = (hasFormFields && isValid) || canSkipFormStep;
+  // Refined Logic for proceeding from form step
+  // - If loading fields, wait.
+  // - If fields exist, form must be valid.
+  // - If fields don't exist (and load succeeded), allow proceeding.
+  const canProceedFromForm = !isLoadingFormFields && (canSkipFormStep || (hasFormFields && isValid));
 
-  // Define disable conditions more clearly
+  // Define disable conditions
   const nextButtonDisabled =
-    (isFirstStep && !selectedRole) || // No role selected on step 1
-    (isFormStep && (isLoadingFormFields || joinWLMutation.isPending || !canProceedFromForm )) || // Loading, submitting, or invalid/no fields on step 2
-    isLastStep || // Already on the last step
-    joinWLMutation.isPending; // Globally disable if mutation pending
+    // Disable if mutation is in progress anywhere
+    joinWLMutation.isPending ||
+    // Disable on first step if no role selected
+    (isFirstStep && !selectedRole) ||
+    // Disable on form step if loading or cannot proceed
+    (isFormStep && (isLoadingFormFields || !canProceedFromForm)) ||
+    // Disable on last step (shouldn't happen if navigation works)
+    isLastStep;
 
-  const handleNextClick = () => {
+
+  const handleNextClick = async () => { // Make async if validation needs await
     if (isFormStep) {
-      // Trigger the submission passed from the parent (handleSubmit(onSubmit))
-      onSubmit();
-    } else {
-      // Just move to the next step
+      // IMPORTANT: Directly call the onSubmit passed which includes RHF's handleSubmit
+      // This ensures validation runs before mutation.mutate is called inside onSubmit.
+      console.log("StepperControls: Calling parent onSubmit (via RHF handleSubmit)");
+      await onSubmit(); // RHF's handleSubmit calls our onSubmit if valid
+    } else if (!isLastStep) {
+       console.log("StepperControls: Calling nextStep()");
       nextStep();
     }
   };
 
   return (
-    <CardFooter className="flex justify-between border-t border-border pt-6 mt-4"> {/* Added top margin */}
+    <CardFooter className="flex justify-between border-t border-border pt-6 mt-4">
       <Button
         variant="outline"
         onClick={prevStep}
@@ -216,18 +270,35 @@ function StepperControls({
       >
         Back
       </Button>
-      <Button
-        onClick={handleNextClick}
-        disabled={nextButtonDisabled}
-      >
-        {joinWLMutation.isPending ? (
-          <span className="animate-pulse">Submitting...</span>
-        ) : isFormStep ? (
-           (hasFormFields ? "Submit Application" : "Proceed") // Show "Proceed" if no fields exist
-        ) : (
-          "Next"
+      {/* Hide Next button on the final step if SuccessStep is shown within the stepper */}
+       {!isLastStep && (
+           <Button
+             onClick={handleNextClick}
+             disabled={nextButtonDisabled}
+           >
+             {joinWLMutation.isPending ? (
+               <span className="flex items-center">
+                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                 Submitting...
+               </span>
+             ) : isFormStep ? (
+                (hasFormFields ? "Submit Application" : "Proceed")
+             ) : (
+               "Next"
+             )}
+           </Button>
+       )}
+        {/* Optionally, show a 'Done' or 'Close' button on the last step */}
+        {isLastStep && (
+             <Button onClick={() => onOpenChange && onOpenChange(false)}> {/* Assuming onOpenChange closes dialog */}
+                Done
+             </Button>
         )}
-      </Button>
     </CardFooter>
   );
 }
+
+
+// --- JoinForm.jsx (No changes needed for this specific error) ---
+// Ensure it still uses useQuery correctly to fetch the data.
+// ... (keep your existing JoinForm component code) ...

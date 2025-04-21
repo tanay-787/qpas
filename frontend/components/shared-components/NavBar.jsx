@@ -120,7 +120,7 @@ export default function NavBar() {
       {/* Right side: Icons and User Menu */}
       <div className="flex items-center space-x-2">
          {/* Dashboard Icon - Visible only when logged in and not already on a dashboard page */}
-         {user && user?.member_of && !window.location.pathname.includes("dashboard") && (
+         {user && user?.member_of && institution && !window.location.pathname.includes("dashboard") && (
           <Button
             variant="ghost"
             size="icon"
