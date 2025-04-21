@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Book, Building2, FileText, GraduationCap, Lock, LockOpen } from "lucide-react"
+import { PenTool } from "lucide-react";
 
 export default function QuestionPaperView({ questionPapers, loading, refetch }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,8 +33,25 @@ export default function QuestionPaperView({ questionPapers, loading, refetch }) 
   }
 
   if (!questionPapers || questionPapers.length === 0) {
-    return <p>No question papers available.</p>;
+    return (
+      <div className="flex flex-col items-center justify-center h-64 text-center px-4">
+        <FileText className="w-12 h-12 text-muted-foreground mb-4" />
+        <h2 className="text-2xl font-semibold">Nothing here yet!</h2>
+        <p className="text-sm text-muted-foreground mt-2">
+          No question papers have been added. Please check back later or try refetching.
+        </p>
+        <Button
+          variant="outline"
+          className="mt-4"
+          onClick={() => refetch()}
+        >
+          <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+          Refetch
+        </Button>
+      </div>
+    );
   }
+  
 
   const subjects = [...new Set(questionPapers.map((paper) => paper.subject))];
   const degrees = [...new Set(questionPapers.map((paper) => paper.degree))];
@@ -213,7 +231,7 @@ export default function QuestionPaperView({ questionPapers, loading, refetch }) 
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Building2 className="w-4 h-4 text-muted-foreground" />
+                    <PenTool className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm">
                       <span className="text-muted-foreground">Created By:</span> {paper.createdBy.displayName}
                     </span>

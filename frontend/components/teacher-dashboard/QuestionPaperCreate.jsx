@@ -17,6 +17,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useInstitution } from "../../context/InstitutionContext";
 import axios from "axios";
 import { useAuth } from "../../context/AuthContext";
+import { Controller } from "react-hook-form";
+
 
 const createQuestionPaper = async ({ institutionId, formData }) => {
   try {
@@ -49,16 +51,19 @@ const QuestionPaperCreate = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    control,
   } = useForm({
     defaultValues: {
       name: "",
       subject: "",
       semester: "",
       stream: "",
+      degree: "",
       examinationType: "Regular",
       accessType: "private",
     },
   });
+  
 
   const createMutation = useMutation({
     mutationFn: createQuestionPaper,
@@ -168,41 +173,49 @@ const QuestionPaperCreate = () => {
                 <p className="text-red-500 text-xs">{errors.degree.message}</p>
               )}
             </div>
-
             <div>
               <Label htmlFor="examinationType">Examination Type</Label>
-              <Select {...register("examinationType")}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Regular">Regular</SelectItem>
-                  <SelectItem value="ATKT">ATKT</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="examinationType"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Regular">Regular</SelectItem>
+                      <SelectItem value="ATKT">ATKT</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
+
 
             <div>
               <Label htmlFor="accessType">Access Type *</Label>
-              <Select
-                {...register("accessType", {
-                  required: "Access type is required",
-                })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select access type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="private">Private</SelectItem>
-                  <SelectItem value="public">Public</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="accessType"
+                control={control}
+                rules={{ required: "Access type is required" }}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select access type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="private">Private</SelectItem>
+                      <SelectItem value="public">Public</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               {errors.accessType && (
-                <p className="text-red-500 text-xs">
-                  {errors.accessType.message}
-                </p>
+                <p className="text-red-500 text-xs">{errors.accessType.message}</p>
               )}
             </div>
+
 
             <div>
               <Label htmlFor="file">

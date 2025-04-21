@@ -3,6 +3,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useQuery } from "@tanstack/react-query";
 import { useInstitution } from "../../context/InstitutionContext";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import axios from "axios";
 import { Search } from "lucide-react";
 import {
@@ -23,6 +24,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { DockBar } from "@/components/ui/dock-bar";
 import { motion } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { PenTool } from "lucide-react";
 
 
 const fetchPapersByInstitution = async (institutionId) => {
@@ -41,6 +43,9 @@ export default function StudentDashboard() {
     subjects: [],
     examTypes: [],
     degrees: [],
+    accessTypes: [],
+    createdBy: [],
+    belongsTo: [],
   });
   const [sortBy, setSortBy] = useState('newest');
   const [filteredPapers, setFilteredPapers] = useState([]);
@@ -78,18 +83,33 @@ export default function StudentDashboard() {
     if (filters.degrees.length > 0) {
       filtered = filtered.filter(paper => filters.degrees.includes(paper.degree));
     }
+    if (filters.accessTypes.length > 0) {
+      filtered = filtered.filter(paper => filters.accessTypes.includes(paper.accessType));
+    }
+    if (filters.createdBy.length > 0) {
+      filtered = filtered.filter(paper => filters.createdBy.includes(paper.createdBy.displayName));
+    }
+    if (filters.belongsTo.length > 0) {
+      filtered = filtered.filter(paper => filters.belongsTo.includes(paper.belongsTo.name));
+    }
 
-    // Apply sorting
+    // Sorting logic remains same
+    const getDate = (createdAt) => {
+      if (createdAt?._seconds) {
+        return new Date(createdAt._seconds * 1000);
+      }
+      return new Date(createdAt); // fallback in case it's a string
+    };
+    
     switch (sortBy) {
       case 'newest':
-        filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        filtered.sort((a, b) => getDate(b.createdAt) - getDate(a.createdAt));
         break;
       case 'oldest':
-        filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
-        break;
-      default:
+        filtered.sort((a, b) => getDate(a.createdAt) - getDate(b.createdAt));
         break;
     }
+    
 
     setFilteredPapers(filtered);
   };
@@ -100,19 +120,33 @@ export default function StudentDashboard() {
 
   // Extract unique values for filter options
   const filterOptions = data?.questionPapers ? {
-    subjects: { 
-      title: "Subjects", 
-      items: [...new Set(data.questionPapers.map(paper => paper.subject))] 
+    subjects: {
+      title: "Subjects",
+      items: [...new Set(data.questionPapers.map(p => p.subject))]
     },
-    examTypes: { 
-      title: "Exam Types", 
-      items: [...new Set(data.questionPapers.map(paper => paper.examinationType))] 
+    examTypes: {
+      title: "Exam Types",
+      items: [...new Set(data.questionPapers.map(p => p.examinationType))]
     },
-    degrees: { 
-      title: "Degrees", 
-      items: [...new Set(data.questionPapers.map(paper => paper.degree))] 
+    degrees: {
+      title: "Degrees",
+      items: [...new Set(data.questionPapers.map(p => p.degree))]
+    },
+    accessTypes: {
+      title: "Access Type",
+      items: [...new Set(data.questionPapers.map(p => p.accessType))]
+    },
+    createdBy: {
+      title: "Created By",
+      items: [...new Set(data.questionPapers.map(p => p.createdBy.displayName))]
+    },
+    belongsTo: {
+      title: "Institution",
+      items: [...new Set(data.questionPapers.map(p => p.belongsTo.name))]
     },
   } : {};
+
+
   return (
     <div className="absolute min-h-screen">
       <div className="p-4">
@@ -126,60 +160,66 @@ export default function StudentDashboard() {
               ) : filteredPapers.length > 0 ? (
                 filteredPapers.map((paper) => (
                   <Card key={paper.qp_id} className="group hover:shadow-lg transition-shadow duration-200 overflow-hidden">
-                <CardHeader className="space-y-1">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg font-bold line-clamp-2">{paper.name}</CardTitle>
-                    <Badge variant={paper.accessType === "Public" ? "default" : "secondary"}>
-                      {paper.accessType === "Public" ? (
-                        <LockOpen className="w-3 h-3 mr-1" />
-                      ) : (
-                        <Lock className="w-3 h-3 mr-1" />
-                      )}
-                      {paper.accessType}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid gap-3">
-                    <div className="flex items-center gap-2">
-                      <Book className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm">
-                        <span className="text-muted-foreground">Subject:</span> {paper.subject}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <GraduationCap className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm">
-                        <span className="text-muted-foreground">Degree:</span> {paper.degree}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm">
-                        <span className="text-muted-foreground">Exam Type:</span> {paper.examinationType}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm">
-                        <span className="text-muted-foreground">Belongs To:</span> {paper.belongsTo.name}
-                      </span>
-                    </div>
-                  </div>
-                  <Separator />
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    asChild
-                    variant="default"
-                    className="w-full"
-                  >
-                    <a href={paper.documentURL} target="_blank" rel="noopener noreferrer">
-                      View Question Paper
-                    </a>
-                  </Button>
-                </CardFooter>
-              </Card>
+                    <CardHeader className="space-y-1">
+                      <div className="flex items-start justify-between">
+                        <CardTitle className="text-lg font-bold line-clamp-2">{paper.name}</CardTitle>
+                        <Badge variant={paper.accessType === "Public" ? "default" : "secondary"}>
+                          {paper.accessType === "Public" ? (
+                            <LockOpen className="w-3 h-3 mr-1" />
+                          ) : (
+                            <Lock className="w-3 h-3 mr-1" />
+                          )}
+                          {paper.accessType}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid gap-3">
+                        <div className="flex items-center gap-2">
+                          <Book className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">
+                            <span className="text-muted-foreground">Subject:</span> {paper.subject}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <GraduationCap className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">
+                            <span className="text-muted-foreground">Degree:</span> {paper.degree}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">
+                            <span className="text-muted-foreground">Exam Type:</span> {paper.examinationType}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <PenTool className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">
+                            <span className="text-muted-foreground">Created By:</span> {paper.createdBy?.displayName || "N/A"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Building2 className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">
+                            <span className="text-muted-foreground">Belongs:</span> {paper.belongsTo?.name || "N/A"}
+                          </span>
+                        </div>
+                      </div>
+                      <Separator />
+                    </CardContent>
+                    <CardFooter>
+                      <Button
+                        asChild
+                        variant="default"
+                        className="w-full"
+                      >
+                        <a href={paper.documentURL} target="_blank" rel="noopener noreferrer">
+                          View Question Paper
+                        </a>
+                      </Button>
+                    </CardFooter>
+                  </Card>
                 ))
               ) : (
                 <p>No matching question papers found.</p>
@@ -189,6 +229,7 @@ export default function StudentDashboard() {
         </div>
       </div>
       <DockBar>
+        {/* Search Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -199,7 +240,9 @@ export default function StudentDashboard() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="block md:hidden">
+
+        {/* Filter Button: Sheet on Mobile, Popover on Desktop */}
+        <div className="block">
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="rounded-full">
@@ -210,6 +253,7 @@ export default function StudentDashboard() {
               <div className="pt-6">
                 <FilterBar
                   filtersConfig={filterOptions}
+                  filters={filters}
                   onFilterChange={handleFilterChange}
                 />
               </div>
@@ -217,7 +261,7 @@ export default function StudentDashboard() {
           </Sheet>
         </div>
 
-        <div className="hidden md:block">
+        {/* <div className="hidden md:block">
           <Popover>
             <PopoverTrigger asChild>
               <Button variant="outline" size="icon" className="rounded-full">
@@ -227,12 +271,14 @@ export default function StudentDashboard() {
             <PopoverContent className="w-80 p-0" align="end">
               <FilterBar
                 filtersConfig={filterOptions}
+                filters={filters}
                 onFilterChange={handleFilterChange}
               />
             </PopoverContent>
           </Popover>
-        </div>
+        </div> */}
 
+        {/* Sort Select */}
         <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger className="w-[140px] rounded-full h-9">
             <SelectValue placeholder="Sort by" />
@@ -243,65 +289,39 @@ export default function StudentDashboard() {
           </SelectContent>
         </Select>
       </DockBar>
+
     </div>
   );
 }
-
-const FilterBar = ({ filtersConfig, onFilterChange }) => {
-  const initialFilters = Object.keys(filtersConfig || {}).reduce((acc, key) => {
-    acc[key] = [];
-    return acc;
-  }, {});
-
-  const [filters, setFilters] = useState(initialFilters);
-
-  // Reset filters when filtersConfig changes
-  useEffect(() => {
-    setFilters(initialFilters);
-  }, [filtersConfig]);
-
-  const handleFilterChange = (category, item) => {
-    setFilters((prevFilters) => {
-      const updatedCategory = prevFilters[category].includes(item)
-        ? prevFilters[category].filter((i) => i !== item)
-        : [...prevFilters[category], item];
-
-      const updatedFilters = { ...prevFilters, [category]: updatedCategory };
-      onFilterChange(updatedFilters);
-      return updatedFilters;
-    });
-  };
-
-  if (!filtersConfig || Object.keys(filtersConfig).length === 0) {
-    return <div className="p-4">No filters available</div>;
-  }
+export function FilterBar({ filtersConfig, filters, onFilterChange }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.2 }}
-      className="space-y-4 p-4"
-    >
-      <h3 className="font-semibold text-lg mb-6">Filters</h3>
-      {Object.entries(filtersConfig).map(([category, { title, items }]) => (
-        <div key={category}>
-          <Label className="block mb-2">{title}</Label>
+    <div className="space-y-4 p-4">
+      {Object.entries(filtersConfig).map(([filterKey, { title, items }]) => (
+        <div key={filterKey}>
+          <h4 className="font-medium mb-2">{title}</h4>
           <div className="space-y-2">
-            {(items || []).map((elem, index) => (
-              <div key={`${category}-${elem}`} className="flex items-center space-x-2">
+            {items.map((item) => (
+              <div key={item} className="flex items-center space-x-2">
                 <Checkbox
-                  id={`${category}-${index}`}
-                  checked={filters[category]?.includes(elem)}
-                  onCheckedChange={() => handleFilterChange(category, elem)}
+                  id={`${filterKey}-${item}`}
+                  checked={filters[filterKey].includes(item)}
+                  onCheckedChange={(checked) => {
+                    const updated = checked
+                      ? [...filters[filterKey], item]
+                      : filters[filterKey].filter((v) => v !== item);
+
+                    onFilterChange({
+                      ...filters,
+                      [filterKey]: updated,
+                    });
+                  }}
                 />
-                <label htmlFor={`${category}-${index}`} className="text-sm">
-                  {elem}
-                </label>
+                <Label htmlFor={`${filterKey}-${item}`}>{item}</Label>
               </div>
             ))}
           </div>
         </div>
       ))}
-    </motion.div>
+    </div>
   );
-};
+}

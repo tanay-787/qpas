@@ -50,6 +50,11 @@ const joinWaitingLobby = async (req, res) => {
       message: 'Request added to the institution\'s waiting lobby.',
       request_id: newRequestRef.id,
     });
+
+    addNotification(
+      user_id,
+      `Your request has been rejected.`
+    );
   } catch (error) {
     res.status(500).json({
       message: 'Failed to add request to waiting lobby.',
