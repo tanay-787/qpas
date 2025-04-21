@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"; // Added useLocation import
 import AuthProvider from "./context/AuthContext";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { InstitutionProvider } from "./context/InstitutionContext";
@@ -11,17 +11,19 @@ import AdminDashboard from "./components/admin-dashboard/AdminDashboard";
 import BrowseInstitutions from "./components/browse-institutions-page/BrowseInstitutions";
 import SampleDashboard from "./components/SampleDashboard";
 import FormStructureBuilder from "./components/FormStructureBuilder";
-import { useLocation } from "react-router-dom";
+// useLocation is already used below, ensure it's imported once
 import AnimatedContent from "@/components/ui/animated-content";
 import TeacherDashboard from "./components/teacher-dashboard/TeacherDashboard";
 import StudentDashboard from "./components/student-dashboard/StudentDashboard";
-import { TestUI } from '@/components/test-ui'
+import { TestUI } from '@/components/test-ui';
 import MainLayout from "./components/shared-components/MainLayout";
 import { Toaster } from "@/components/ui/sonner"; // Import Toaster for optional toast notifications
 import UserProfile from "./components/UserProfile";
+import ProtectedRoute from "./components/shared-components/ProtectedRoute"; // Import ProtectedRoute
 
 const queryClient = new QueryClient();
 
+// Define AppContent to use useLocation hook
 export default function App() {
   const location = useLocation();
   const isAuthRoute = location.pathname === '/login' || location.pathname === '/signup';
@@ -29,7 +31,6 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        {/* Wrap InstitutionProvider with NotificationProvider */}
         <NotificationProvider>
           <InstitutionProvider>
             <AnimatedContent
@@ -52,16 +53,42 @@ export default function App() {
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/browse-institutions" element={<BrowseInstitutions />} />
                   <Route path="/sample" element={<SampleDashboard />} />
+                  {/* Form Builder might also need protection depending on requirements */}
                   <Route path="/institutions/:institution_id/form-builder" element={<FormStructureBuilder />} />
-                  <Route path="/:institution_id/admin/dashboard" element={<AdminDashboard />} />
-                  <Route path="/:institution_id/teacher/dashboard" element={<TeacherDashboard />} />
-                  <Route path="/:institution_id/student/dashboard" element={<StudentDashboard />} />
+
+                  {/* Protected Dashboard Routes */}
+                  <Route
+                    path="/:institution_id/admin/dashboard"
+                    element={
+                      <ProtectedRoute requiredRole="admin">
+                        <AdminDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/:institution_id/teacher/dashboard"
+                    element={
+                      <ProtectedRoute requiredRole="teacher">
+                        <TeacherDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/:institution_id/student/dashboard"
+                    element={
+                      <ProtectedRoute requiredRole="student">
+                        <StudentDashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+
                   <Route path="/test-ui" element={<TestUI />} />
+                  {/* UserProfile might also need protection depending on requirements */}
                   <Route path="/user-profile" element={<UserProfile />} />
                 </Route>
               </Routes>
             </AnimatedContent>
-             {/* Add the Toaster component here for toast notifications */}
+            {/* Add the Toaster component here for toast notifications */}
             <Toaster />
           </InstitutionProvider>
         </NotificationProvider>

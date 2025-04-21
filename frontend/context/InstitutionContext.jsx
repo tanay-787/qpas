@@ -128,82 +128,15 @@ export function InstitutionProvider({ children }) {
     refetch: refetchInstitution,          // Function to manually trigger a refetch
     status: institutionStatus,            // Detailed status: 'pending', 'error', 'success'
   } = useQuery({
-    // Unique key for this query, includes user UID to refetch if user changes
     queryKey: ['institution', user?.uid],
-    // The function that performs the data fetching
     queryFn: () => fetchInstitution(user),
-    // Enable the query only when:
-    // 1. Firebase auth state indicates user is logged in.
-    // 2. The AuthContext is not in its initial loading state (Firestore user data fetch is done).
-    // 3. The Firestore user object exists AND has a 'role' property needed by fetchInstitution.
     enabled: isLoggedIn && !isAuthLoading && !!user?.role,
     // Configuration options:
     staleTime: 5 * 60 * 1000,       // Data is considered fresh for 5 minutes
     gcTime: 10 * 60 * 1000,         // Data is kept in cache for 10 minutes after becoming inactive
     refetchOnWindowFocus: false,    // Don't refetch automatically when browser tab regains focus
     retry: 1,                       // Retry failed fetches once
-    // notifyOnChangeProps: 'all', // Consider using 'all' if observing many states, or list specific ones
   });
-
-  // --- Effect 1: Show Loading Toast ---
-  // Manages the appearance of the "loading" notification
-  useEffect(() => {
-
-    if (isInstitutionFetching && !loadingToastId.current) {
-      loadingToastId.current = sonner.loading('Fetching institution details...');
-      console.log("Sonner: Showing loading toast", loadingToastId.current);
-    }
-
-  }, [isInstitutionFetching]);
-
-
-  useEffect(() => {
-
-    if (!isInstitutionFetching && loadingToastId.current) {
-      const toastId = loadingToastId.current; // Capture ID before resetting ref
-
-
-      if (institutionStatus === 'success') {
-
-        console.log("Sonner: Updating toast to SUCCESS", toastId, "Data:", institutionData);
-        sonner.success(`Successfully fetched ${institutionData?.name || 'your institution'} details.`, {
-          id: toastId, // Target the specific toast to update it
-          description: 'Institution data loaded.',
-          duration: 5000, // Optional: How long the success toast stays visible (ms)
-          // Optional Action Button:
-          action: {
-            label: 'Go to Dashboard',
-            onClick: () => {
-              // Ensure necessary data exists before navigating
-              if (institutionData?.inst_id && user?.role) {
-                navigate(`/${institutionData.inst_id}/${user.role}/dashboard`);
-              }
-            },
-          }
-        });
-      } else if (institutionStatus === 'error') {
-        console.log("Sonner: Updating toast to ERROR", toastId, "Error:", institutionError);
-        sonner.error(`Failed to fetch institution: ${institutionError?.message || 'Unknown error'}`, {
-          id: toastId, // Target the specific toast to update it
-        });
-      } else {
-        // UNEXPECTED CASE: Fetching stopped, but status isn't success or error
-        // (e.g., query was disabled mid-fetch). Dismiss the loading toast.
-        console.log("Sonner: Dismissing toast (unexpected status after fetch)", toastId, "Status:", institutionStatus);
-        sonner.dismiss(toastId);
-      }
-
-      loadingToastId.current = null;
-    }
-
-
-  }, [
-    isInstitutionFetching,  // To know when fetching stops
-    institutionStatus,      // To know the final outcome ('success', 'error')
-    institutionData,        // Needed for the success message content
-    institutionError,       // Needed for the error message content
-    user?.role              // Needed for the optional navigation action path
-  ]);
 
 
   // Mutation for Creating an Institution
@@ -232,14 +165,7 @@ export function InstitutionProvider({ children }) {
   const updateInstitutionMutation = useMutation({
     mutationFn: updateInstitution, // The function that performs the API call
     onSuccess: (updatedInstitution) => {
-      // When update is successful:
-      // 1. Invalidate the query cache to refetch fresh data. (Safer)
       queryClient.invalidateQueries({ queryKey: ['institution', user?.uid] });
-      // --- OR ---
-      // 2. Manually update the cache with the returned data (Faster UI, assumes response is accurate).
-      // queryClient.setQueryData(['institution', user?.uid], updatedInstitution);
-      // ---
-      // 3. Show a success notification.
       sonner.success("Institution updated successfully!");
     },
     onError: (error) => {

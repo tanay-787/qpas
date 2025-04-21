@@ -20,6 +20,8 @@ export default function QuestionPaperView({ questionPapers, loading, refetch }) 
   const [selectedDegree, setSelectedDegree] = useState(null);
   const [selectedExaminationType, setSelectedExaminationType] = useState(null);
   const [selectedAccessType, setSelectedAccessType] = useState(null);
+  const [selectedCreatedBy, setSelectedCreatedBy] = useState(null);
+  const [selectedBelongsTo, setSelectedBelongsTo] = useState(null);
 
   if (loading) {
     return (
@@ -39,6 +41,10 @@ export default function QuestionPaperView({ questionPapers, loading, refetch }) 
     ...new Set(questionPapers.map((paper) => paper.examinationType)),
   ];
 
+  // Extract unique createdBy and belongsTo values
+  const createdByList = [...new Set(questionPapers.map((paper) => paper.createdBy.displayName))];
+  const belongsToList = [...new Set(questionPapers.map((paper) => paper.belongsTo.name))];
+
   const filteredPapers = questionPapers.filter(
     (paper) =>
       (paper.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -46,9 +52,11 @@ export default function QuestionPaperView({ questionPapers, loading, refetch }) 
       (selectedSubject ? paper.subject === selectedSubject : true) &&
       (selectedDegree ? paper.degree === selectedDegree : true) &&
       (selectedExaminationType ? paper.examinationType === selectedExaminationType : true) &&
-      (selectedAccessType ? paper.accessType.toLowerCase() === selectedAccessType.toLowerCase() : true) // Normalize case
+      (selectedAccessType ? paper.accessType.toLowerCase() === selectedAccessType.toLowerCase() : true) && // Normalize case
+      (selectedCreatedBy ? paper.createdBy.displayName === selectedCreatedBy : true) &&
+      (selectedBelongsTo ? paper.belongsTo.name === selectedBelongsTo : true)
   );
-  
+
 
   return (
     <div className="p-6">
@@ -68,7 +76,7 @@ export default function QuestionPaperView({ questionPapers, loading, refetch }) 
         />
         <Input
           type="text"
-          placeholder="Search by keywords..."
+          placeholder="Search by name..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full pl-10"
@@ -82,6 +90,8 @@ export default function QuestionPaperView({ questionPapers, loading, refetch }) 
             setSelectedSubject(null);
             setSelectedExaminationType(null);
             setSelectedAccessType(null);
+            setSelectedCreatedBy(null);
+            setSelectedBelongsTo(null);
             setSearchQuery("");
           }}
         >
@@ -136,6 +146,32 @@ export default function QuestionPaperView({ questionPapers, loading, refetch }) 
             <SelectItem value="Private">Private</SelectItem>
           </SelectContent>
         </Select>
+
+         {/* New Select Dropdown for Created By */}
+         <Select onValueChange={(value) => setSelectedCreatedBy(value === "all" ? null : value)}>
+            <SelectTrigger>{selectedCreatedBy || "Created By"}</SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Created By</SelectItem>
+              {createdByList.map((createdBy) => (
+                <SelectItem key={createdBy} value={createdBy}>
+                  {createdBy}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* New Select Dropdown for Belongs To */}
+          <Select onValueChange={(value) => setSelectedBelongsTo(value === "all" ? null : value)}>
+            <SelectTrigger>{selectedBelongsTo || "Belongs To"}</SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Belongs To</SelectItem>
+              {belongsToList.map((belongsTo) => (
+                <SelectItem key={belongsTo} value={belongsTo}>
+                  {belongsTo}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
       </div>
 
       {/* Display Filtered Question Papers */}
@@ -179,7 +215,13 @@ export default function QuestionPaperView({ questionPapers, loading, refetch }) 
                   <div className="flex items-center gap-2">
                     <Building2 className="w-4 h-4 text-muted-foreground" />
                     <span className="text-sm">
-                      <span className="text-muted-foreground">Belongs To:</span> {paper.belongsTo.name}
+                      <span className="text-muted-foreground">Created By:</span> {paper.createdBy.displayName}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">
+                      <span className="text-muted-foreground">Belongs :</span> {paper.belongsTo.name}
                     </span>
                   </div>
                 </div>
