@@ -34,7 +34,7 @@ app.use("/api/waiting-lobby", waitingLobbyRoutes);
 app.use("/api/question-papers", questionPaperRoutes);
 app.use("/api/members", memberRoutes)
 app.use("/api/n8n", n8nRoutes)
-app.use("api/profile", profileRoutes);
+app.use("/api/profile", profileRoutes);
 
 //keep alive mechanism
 app.get("/health", (req, res) => {

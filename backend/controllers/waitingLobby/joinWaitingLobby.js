@@ -1,5 +1,5 @@
 import { db } from '../../config/firebase.js';
-
+import { addNotification } from '../../utils/notificationUtils.js';
 /**
  * Add a user to the waiting lobby of a specific institution
  */
@@ -51,10 +51,10 @@ const joinWaitingLobby = async (req, res) => {
       request_id: newRequestRef.id,
     });
 
-    addNotification(
-      user_id,
-      `Your request has been rejected.`
-    );
+    // addNotification(
+    //   user_id,
+    //   `Your request has been added to the institution's waiting lobby.`
+    // );
   } catch (error) {
     res.status(500).json({
       message: 'Failed to add request to waiting lobby.',

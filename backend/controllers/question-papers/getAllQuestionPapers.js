@@ -41,7 +41,12 @@ export const getAllQuestionPapers = async (req, res) => {
             const userData = userDoc.data();
             createdByData = {
               uid: createdByUid,
-              displayName: userData.displayName || null,
+              displayName: userData?.displayName,
+            };
+          }else if (paperData.isCreatorDeleted) {
+            createdByData = {
+              uid: createdByUid || '787',
+              displayName: "Former Teacher",
             };
           }
         }
