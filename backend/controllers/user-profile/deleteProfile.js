@@ -15,7 +15,7 @@ export const deleteProfile = async (req, res) => {
     const userData = userSnap.data();
 
     if(userData.role === "admin"){
-        return res.status(500).json({message: "You cannot delete the acocunt directly without leaving the institution"})
+        return res.status(500).json({message: "You cannot delete the account directly without leaving the institution"})
     }
 
     if (userData.role === "teacher") {
