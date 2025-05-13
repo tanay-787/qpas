@@ -1,28 +1,27 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"; // Added useLocation import
-import AuthProvider from "./context/AuthContext";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { InstitutionProvider } from "./context/InstitutionContext";
-// Import the NotificationProvider
-import { NotificationProvider } from "./context/NotificationContext";
-import LandingPage from "./components/LandingPage";
-import SignUp from "./components/user-auth/SignUp";
-import LogIn from "./components/user-auth/LogIn";
-import AdminDashboard from "./components/admin-dashboard/AdminDashboard";
-import BrowseInstitutions from "./components/browse-institutions-page/BrowseInstitutions";
-import SampleDashboard from "./components/SampleDashboard";
-import FormStructureBuilder from "./components/FormStructureBuilder";
-// useLocation is already used below, ensure it's imported once
+import ProtectedRoute from "@/components/protected-route";
+
+//context-providers
+import AuthProvider from "@/context/AuthContext";
+import { InstitutionProvider } from "@/context/InstitutionContext";
+import { NotificationProvider } from "@/context/NotificationContext";
+
+//pages
+import LandingPage from "@/pages/landing-page";
+import SignUp from "@/pages/user-auth/SignUp";
+import LogIn from "@/pages/user-auth/LogIn";
+import AdminDashboard from "@/pages/admin-dashboard/AdminDashboard";
+import BrowseInstitutions from "@/pages/browse-institutions";
 import AnimatedContent from "@/components/ui/animated-content";
-import TeacherDashboard from "./components/teacher-dashboard/TeacherDashboard";
-import StudentDashboard from "./components/student-dashboard/StudentDashboard";
+import TeacherDashboard from "@/pages/teacher-dashboard/TeacherDashboard";
+import StudentDashboard from "@/pages/student-dashboard/StudentDashboard";
 import { TestUI } from '@/components/test-ui';
-import MainLayout from "./components/shared-components/MainLayout";
-import UserProfile from "./components/UserProfile";
-import ProtectedRoute from "./components/shared-components/ProtectedRoute"; // Import ProtectedRoute
+import MainLayout from "@/components/main-layout";
+import UserProfile from "@/pages/user-profile";
 
 const queryClient = new QueryClient();
 
-// Define AppContent to use useLocation hook
 export default function App() {
   const location = useLocation();
   const isAuthRoute = location.pathname === '/login' || location.pathname === '/signup';
@@ -51,8 +50,7 @@ export default function App() {
                 <Route element={<MainLayout />}>
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/browse-institutions" element={<BrowseInstitutions />} />
-                  <Route path="/sample" element={<SampleDashboard />} />
-
+                  <Route path="/user-profile" element={<UserProfile />} />
                   {/* Protected Dashboard Routes */}
                   <Route
                     path="/:institution_id/admin/dashboard"
@@ -80,8 +78,6 @@ export default function App() {
                   />
 
                   <Route path="/test-ui" element={<TestUI />} />
-                  {/* UserProfile might also need protection depending on requirements */}
-                  <Route path="/user-profile" element={<UserProfile />} />
                 </Route>
               </Routes>
             </AnimatedContent>
