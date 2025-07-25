@@ -15,14 +15,27 @@ import profileRoutes from "./routes/profileRoutes.js";
 
 const app = express();
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
 app.use(compression());
 
-app.use(cors());
+// // Configure CORS
+// const allowedOrigins = [
+//   'http://localhost:3000', // Your local frontend development server
+//   'https://qpas.vercel.app', // Your Vercel production domain
+// ];
 
-app.use(express.static(join(__dirname, "../frontend/dist"))); // Serve the built static files of the React app
-app.use("/assets", express.static(join(__dirname, "../frontend/assets")));
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     // Allow requests with no origin (like mobile apps or curl requests)
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.indexOf(origin) === -1) {
+//       const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+//       return callback(new Error(msg), false);
+//     }
+//     return callback(null, true);
+//   }
+// }));
+
+app.use(cors());
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -43,11 +56,6 @@ app.get("/health", (req, res) => {
   } catch (error) {
     res.status(500).send("Service Unavailable");
   }
-});
-
-// Handle all other routes and return the React app
-app.get("*", (req, res) => {
-  res.sendFile(join(__dirname, "../frontend/dist", "index.html"));
 });
 
 

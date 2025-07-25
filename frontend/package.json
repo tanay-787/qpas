@@ -55,6 +55,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@tailwindcss/typography": "^0.5.16",
     "@vitejs/plugin-react": "3.1.0",
     "autoprefixer": "^10.4.14",
     "esbuild-wasm": "0.17.12",

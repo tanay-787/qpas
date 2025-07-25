@@ -19,6 +19,7 @@ import StudentDashboard from "@/pages/student-dashboard/StudentDashboard";
 import { TestUI } from '@/components/test-ui';
 import MainLayout from "@/components/main-layout";
 import UserProfile from "@/pages/user-profile";
+import UnderstandingQpas from "@/pages/UnderstandingQpas"; // Added import
 
 const queryClient = new QueryClient();
 
@@ -51,6 +52,7 @@ export default function App() {
                   <Route path="/" element={<LandingPage />} />
                   <Route path="/browse-institutions" element={<BrowseInstitutions />} />
                   <Route path="/user-profile" element={<UserProfile />} />
+                  <Route path="/understanding-qpas" element={<UnderstandingQpas />} /> {/* Added route */}
                   {/* Protected Dashboard Routes */}
                   <Route
                     path="/:institution_id/admin/dashboard"

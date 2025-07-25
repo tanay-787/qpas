@@ -15,7 +15,7 @@ export default defineConfig({
       "/api": {
         target:
           process.env.NODE_ENV === "production"
-            ? "https://qpas.onrender.com"
+            ? "https://qpas..com"
             : "http://localhost:7878",
         changeOrigin: true,
         secure: true,

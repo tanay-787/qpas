@@ -38,6 +38,9 @@ const MenuContent = () => (
     <Link to="/browse-institutions" className="block text-lg hover:underline">
       Browse
     </Link>
+    <Link to="/understanding-qpas" className="block text-lg hover:underline">
+      Blog
+    </Link>
   </div>
 );
 
@@ -106,15 +109,15 @@ export default function NavBar() {
       {/* Left side: Navigation links */}
       <div className="flex items-center space-x-4">
         <nav className="hidden md:flex space-x-4">
-          <a href="/" className="text-md hover:underline">
+          <Link to="/" className="text-md hover:underline">
             Home
-          </a>
-          <a href="/browse-institutions" className="text-md hover:underline">
+          </Link>
+          <Link to="/browse-institutions" className="text-md hover:underline">
             Browse
-          </a>
-          {/* <a href="#" className="text-md hover:underline">
+          </Link>
+          <Link to="/understanding-qpas" className="text-md hover:underline">
             Blog
-          </a> */}
+          </Link>
           {/* <a href="#" className="text-md hover:underline">Contact Us</a> */}
         </nav>
       </div>

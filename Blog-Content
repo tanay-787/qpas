@@ -1,0 +1,63 @@
+# Blog Content & Structure for '/understanding-qpas'
+
+**Overall Goal:** Create an informative and easy-to-navigate documentation page for QPAS users.
+
+**Primary Navigation:** A `magicui/bento-grid` at the top of the page will serve as an interactive Table of Contents. Each `BentoCard` will link to a specific section on the page.
+
+---
+
+## I. Interactive Table of Contents (Using magicui/bento-grid)
+
+...
+(Content for BentoGrid cards remains the same)
+...
+
+---
+
+## II. Page Content Sections
+
+Each section below will have a corresponding `id` attribute for the BentoGrid links. 
+**Styling Approach:** Use Shadcn `Card` components for each section. The `CardContent` will have `prose dark:prose-invert` classes applied to give a markdown-like feel to standard HTML content (headings, paragraphs, lists, code, etc.).
+
+### 0. Brief Page Introduction (Above BentoGrid)
+*   A welcoming sentence or two about the purpose of this guide.
+
+### 1. Section: What is QPAS?
+*   `id`: "what-is-qpas"
+*   Content: Detailed explanation of QPAS. 
+    *   Example Structure:
+        *   `<h3>Core Mission</h3><p>...</p>`
+        *   `<h3>Who is it for?</h3><ul><li>Students</li><li>Teachers</li><li>Administrators</li></ul>`
+        *   `<h3>Key Benefits</h3><p>...</p>`
+
+### 2. Section: Getting Started
+*   `id`: "getting-started"
+*   Content: How to sign in, institution importance, initial steps.
+    *   Example Structure:
+        *   `<h3>1. Signing In</h3><p>...</p>`
+        *   `<h3>2. Joining/Creating an Institution</h3><p>...</p>`
+
+### 3. Section: Navigating the Interface
+*   `id`: "navigating-interface"
+*   Content: Navbar, Dark Mode, general UI.
+    *   Example Structure:
+        *   `<h4>The Navbar</h4><ul><li>Home</li>...</ul>`
+
+### 4. Section: Features & Dashboards
+*   `id`: "features-and-dashboards"
+*   Content: Role-based dashboards, core features.
+    *   Example Structure:
+        *   `<h3>Admin Dashboard</h3><p>...</p><h4>Key Admin Features:</h4><ul>...</ul>`
+        *   `<h3>Teacher Dashboard</h3><p>...</p>`
+        *   `<h3>Student Dashboard</h3><p>...</p>`
+
+### 5. Section: Tips & Best Practices
+*   `id`: "tips-and-tricks"
+*   Content: Actionable tips. (Can use `<Alert>` components from Shadcn within the prose for special callouts).
+
+### 6. Section: Support & FAQ
+*   `id`: "support-and-faq"
+*   Content: Help, contact, FAQs.
+    *   Example Structure:
+        *   `<h3>Frequently Asked Questions</h3><h4>How do I...?</h4><p>...</p>`
+        *   `<h3>Contact Us</h3><p>...</p>`
