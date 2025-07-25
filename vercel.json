@@ -1,13 +1,13 @@
 {
-    "version": 2,
-    "rewrites": [
-      { "source": "/api/(.*)", "destination": "/api/" },
-      { "source": "/(.*)", "destination": "/frontend/dist/$1" }
-    ],
-    "functions": {
-      "api/index.js": {
-        "memory": 1024,
-        "maxDuration": 10
-      }
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/" },
+    { "source": "/(.*)", "destination": "/frontend/dist/index.html" }
+  ],
+  "functions": {
+    "api/index.js": {
+      "memory": 1024,
+      "maxDuration": 10
     }
   }
+}
