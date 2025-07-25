@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# QPAS
-=======
 # QPAS: Question Paper Archives System
 
 QPAS (Question Paper Archives System) is an advanced, role-based web application designed to serve educational institutions, faculty, and students by providing a centralized digital repository for examination question papers. Its goal is to enhance exam preparation for students and streamline the process of question paper management and reuse for educators.
@@ -139,4 +136,3 @@ QPAS features a modern full-stack architecture:
 ## Contribution Guidelines
 
 Contributions are welcome! Please submit issues or pull requests for enhancements, bug fixes, or new features.
->>>>>>> 3a020e87d5db21413a2f856ae032327684c1977b
