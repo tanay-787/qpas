@@ -22,7 +22,4 @@ export default defineConfig({
       },
     },
   },
-  build: {
-    outDir: path.resolve(__dirname, '..', 'public'), // Output to the 'public' directory at the root
-  },
 });
