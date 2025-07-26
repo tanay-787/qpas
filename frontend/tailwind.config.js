@@ -6,8 +6,7 @@ module.exports = {
     './components/**/*.{js,jsx}',
     './app/**/*.{js,jsx}',
     './src/**/*.{js,jsx}',
-    "./src/ui/**/*.{tsx,ts,js,jsx}",
-    "./src/components/subframe-ui/**/*.{tsx,ts,js,jsx}"
+    "./src/ui/**/*.{tsx,ts,js,jsx}"
   ],
   prefix: "",
   theme: {
@@ -132,6 +131,5 @@ module.exports = {
       }
     }
   },
-  plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography')],
-  presets: [require("./src/components/subframe-ui/tailwind.config.js")]
+  plugins: [require("tailwindcss-animate"), require('@tailwindcss/typography')]
 };
