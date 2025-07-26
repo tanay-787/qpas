@@ -15,7 +15,7 @@ export default defineConfig({
       "/api": {
         target:
           process.env.NODE_ENV === "production"
-            ? "https://qpas..com"
+            ? "https://qpas.vercel.app"
             : "http://localhost:7878",
         changeOrigin: true,
         secure: true,

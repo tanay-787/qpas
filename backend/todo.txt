@@ -1,1 +1,0 @@
-The current state is that the auth.js Middleware extracts the User object from the Firebase Auth, but we need a reference to the User Document stored in Firestore for roleChecking(RBAC) and other details.
