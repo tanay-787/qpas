@@ -50,7 +50,7 @@ app.use("/api/n8n", n8nRoutes)
 app.use("/api/profile", profileRoutes);
 
 //keep alive mechanism
-app.get("/health", (req, res) => {
+app.get("/api/health", (req, res) => {
   try {
     res.status(200).send("OK");
   } catch (error) {
