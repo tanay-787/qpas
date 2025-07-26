@@ -6,7 +6,7 @@ QPAS (Question Paper Archives System) is an advanced, role-based web application
 
 ## 🌐 Live Demo
 
-[Access QPAS](https://qpas.onrender.com/)
+[Access QPAS](https://qpas.vercel.app/)
 
 ## 🖥️ Project Presentation
 
@@ -45,7 +45,7 @@ QPAS features a modern full-stack architecture:
   - Secure JWT-based authentication.
   - Role checks and user context extraction in all protected routes.
 - **Deployment:**  
-  - Cloud-based deployment leveraging [Render.com](https://qpas.onrender.com/) for demo and production.
+  - Cloud-based deployment leveraging [Vercel.com](https://qpas.vercel.app) for demo and production.
   - Environment configuration via `.env` files.
 
 ---
@@ -85,7 +85,7 @@ QPAS features a modern full-stack architecture:
 - **Backend:** Node.js, Express.js, Firebase (Firestore & Storage)
 - **Authentication:** JWT (JSON Web Token)
 - **State Management:** React Context, React Query
-- **Deployment:** Render.com
+- **Deployment:** Vercel.com
 
 ---
 
