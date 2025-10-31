@@ -197,7 +197,7 @@ export default function LandingPage() {
                                     <h2 className="text-2xl md:text-3xl font-bold mb-4 text-primary">
                                         Ready to Transform Your Question Paper Management?
                                     </h2>
-                                    <p className="text-primary-foreground/80 max-w-xl">
+                                    <p className="text-secondary-foreground max-w-xl">
                                         Join educational institutions that are already benefiting from our centralized question paper
                                         repository.
                                     </p>
