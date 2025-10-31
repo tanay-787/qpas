@@ -140,8 +140,8 @@ export default function NavBar() {
         {/* Notification Bell - Visible only when logged in */}
         {user && <NotificationBell />}
 
-        {/* Theme Toggle */}
-        <ModeToggle />
+        {/* Theme Toggle
+        <ModeToggle /> */}
 
         {/* User Auth Section */}
         {user ? (

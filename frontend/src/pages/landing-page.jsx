@@ -8,6 +8,7 @@ import HyperText from "@/components/ui/hyper-text"
 
 //icons
 import { ArrowRight, BookOpen, Database, Search, Users, CheckCircle, FileText } from "lucide-react"
+import { ArrowUpRight } from "lucide-react"
 
 export default function LandingPage() {
     const navigate = useNavigate()
@@ -17,14 +18,13 @@ export default function LandingPage() {
                 {/* Hero Section */}
                 <section className="relative overflow-hidden">
                     <div className="relative flex flex-col items-center justify-center px-4 py-20 md:py-32">
-                        <Meteors number={20} />
                         <div className="container mx-auto max-w-6xl text-center z-10">
                             <div className="mb-8">
                                 <span className="inline-block px-4 py-2 mb-4 text-sm font-medium rounded-full bg-primary/10 text-primary-foreground dark:text-primary">
                                     Educational Resource Management
                                 </span>
-                                <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl">
-                                    <HyperText>Question Paper Archives System</HyperText>
+                                <h1 className="mb-6 text-6xl font-bold tracking-tight md:text-6xl">
+                                  Question Paper Archives System
                                 </h1>
                                 <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
                                     A centralized digital repository for educational institutions to store, manage, and access examination
@@ -190,12 +190,11 @@ export default function LandingPage() {
                 {/* CTA Section */}
                 <section className="py-20">
                     <div className="container mx-auto px-4">
-                        <div className="relative overflow-hidden rounded-2xl bg-primary p-8 md:p-12">
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80"></div>
-                            <Meteors number={10} />
+                        <div className="relative overflow-hidden rounded-2xl bg-accent p-8 md:p-12">
+                            {/* <div className="absolute inset-0 bg-gradient-to-br from-primary to-primary/80"></div> */}
                             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                                 <div className="text-center md:text-left">
-                                    <h2 className="text-2xl md:text-3xl font-bold mb-4 text-primary-foreground">
+                                    <h2 className="text-2xl md:text-3xl font-bold mb-4 text-primary">
                                         Ready to Transform Your Question Paper Management?
                                     </h2>
                                     <p className="text-primary-foreground/80 max-w-xl">
@@ -203,18 +202,18 @@ export default function LandingPage() {
                                         repository.
                                     </p>
                                 </div>
-                                {/* <div className="flex flex-col sm:flex-row gap-4">
-                                    <Button size="lg" variant="secondary" className="px-8 font-medium">
-                                        Get Started
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                <Button size="lg" className="px-8 font-medium" onClick={() => navigate("/browse-institutions")}>
+                                        Get Started <ArrowUpRight className="ml-2 h-4 w-4" />
                                     </Button>
                                     <Button
                                         size="lg"
                                         variant="outline"
-                                        className="px-8 font-medium bg-transparent border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
+                                        className="px-8 font-medium"
                                     >
                                         Request Demo
                                     </Button>
-                                </div> */}
+                                </div>
                             </div>
                         </div>
                     </div>
