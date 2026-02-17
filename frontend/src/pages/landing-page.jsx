@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom"
 
 //ui-components
 import { Button } from "@/components/ui/button"
-import Meteors from "@/components/ui/meteors"
-import HyperText from "@/components/ui/hyper-text"
+import TryDemoDialog from "@/components/try-demo-dialog"
 
 //icons
 import { ArrowRight, BookOpen, Database, Search, Users, CheckCircle, FileText } from "lucide-react"
@@ -23,8 +22,8 @@ export default function LandingPage() {
                                 <span className="inline-block px-4 py-2 mb-4 text-sm font-medium rounded-full bg-primary/10 text-primary-foreground dark:text-primary">
                                     Educational Resource Management
                                 </span>
-                                <h1 className="mb-6 text-6xl font-bold tracking-tight md:text-6xl">
-                                  Question Paper Archives System
+                                <h1 className="mb-6 text-6xl font-bold tracking-tight md:text-8xl ">
+                                    Question Paper Archives
                                 </h1>
                                 <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground">
                                     A centralized digital repository for educational institutions to store, manage, and access examination
@@ -34,15 +33,15 @@ export default function LandingPage() {
                                     <Button size="lg" className="px-8 font-medium" onClick={() => navigate("/browse-institutions")}>
                                         Get Started <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
-                                    <Button variant="outline" size="lg" className="px-8 font-medium">
-                                        Learn More
-                                    </Button>
+                                    <TryDemoDialog />
                                 </div>
                             </div>
-                            <div className="relative mx-auto mt-12 max-w-5xl rounded-xl border bg-background/80 backdrop-blur-sm shadow-2xl">
-                                <div className="relative aspect-[16/9] overflow-hidden rounded-t-xl bg-gradient-to-br from-primary/20 to-secondary/20">
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <FileText className="h-32 w-32 text-primary/40" />
+                            <div className="relative mx-auto mt-12 w-full max-w-5xl rounded-xl border bg-background/80 backdrop-blur-sm shadow-2xl">
+                                <div className="relative aspect-video overflow-hidden rounded-t-xl bg-gradient-to-br from-primary/20 to-secondary/20">
+                                    <div className="absolute inset-0 w-full h-full">
+                                        <div className="aspect-video w-full overflow-hidden rounded-xl">
+                                            <img src="assets/qpas-hero-img.webp" loading="lazy" alt="Hero Image" className="w-full h-full object-cover" />
+                                        </div>
                                     </div>
                                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background to-transparent h-24"></div>
                                 </div>
@@ -203,7 +202,7 @@ export default function LandingPage() {
                                     </p>
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-4">
-                                <Button size="lg" className="px-8 font-medium" onClick={() => navigate("/browse-institutions")}>
+                                    <Button size="lg" className="px-8 font-medium" onClick={() => navigate("/browse-institutions")}>
                                         Get Started <ArrowUpRight className="ml-2 h-4 w-4" />
                                     </Button>
                                     <Button
@@ -225,7 +224,7 @@ export default function LandingPage() {
                         <div className="flex flex-col md:flex-row justify-between items-center">
                             <div className="mb-4 md:mb-0">
                                 <p className="text-sm text-muted-foreground">
-                                    © {new Date().getFullYear()} Question Paper Archives System. All rights reserved.
+                                    © {new Date().getFullYear()} Question Paper Archives. All rights reserved.
                                 </p>
                             </div>
                             <div className="flex space-x-6">

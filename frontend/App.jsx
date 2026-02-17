@@ -32,7 +32,7 @@ export default function App() {
       <AuthProvider>
         <NotificationProvider>
           <InstitutionProvider>
-            <AnimatedContent
+            {/* <AnimatedContent
               distance={100}
               direction="vertical"
               reverse={false}
@@ -41,7 +41,7 @@ export default function App() {
               animateOpacity
               scale={1.0}
               threshold={0.1}
-            >
+            > */}
               <Routes>
                 {/* Auth Routes - No NavBar */}
                 <Route path="/signup" element={<SignUp />} />
@@ -82,7 +82,7 @@ export default function App() {
                   <Route path="/test-ui" element={<TestUI />} />
                 </Route>
               </Routes>
-            </AnimatedContent>
+            {/* </AnimatedContent> */}
           </InstitutionProvider>
         </NotificationProvider>
       </AuthProvider>

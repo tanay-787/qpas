@@ -72,7 +72,6 @@ const QuestionPaperManage = () => {
                 description: "Question paper updated successfully",
             })
             refetch()
-            setEditingPaper(null)
         },
         onError: (error) => {
             toast({
@@ -106,6 +105,7 @@ const QuestionPaperManage = () => {
     })
 
     const handleUpdatePaper = (formData) => {
+        if (!editingPaper) return;
         updateMutation.mutate({
             paperId: editingPaper.qp_id,
             updates: formData,
