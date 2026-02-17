@@ -21,13 +21,13 @@ export default function TryDemoDialog({ triggerClassName }) {
   {[
     {
       role: "Student",
-      email: "student_demo@qpas.com",
-      password: "student123",
+      email: "student2@royal.com",
+      password: "student@2",
     },
     {
       role: "Teacher",
-      email: "smita@royal.com",
-      password: "smita@royal",
+      email: "pradnya@royal.com",
+      password: "pradnya@royal",
     },
     {
       role: "Admin",
