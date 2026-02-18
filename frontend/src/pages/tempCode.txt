@@ -1,9 +1,0 @@
-const user = {
-  firstName: "Tanay",
-  lastName: "Gupte",
-  email: "tanay@gmail.com",
-  institutionName: "Royal College",
-  role: "student",
-  institutionAdminEmail: "smita-nair@gmail.com",
-  institutionCreatedBy: "Smita Nair",
-}

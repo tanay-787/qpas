@@ -40,7 +40,7 @@ export default function LandingPage() {
                                 <div className="relative aspect-video overflow-hidden rounded-t-xl bg-gradient-to-br from-primary/20 to-secondary/20">
                                     <div className="absolute inset-0 w-full h-full">
                                         <div className="aspect-video w-full overflow-hidden rounded-xl">
-                                            <img src="assets/qpas-hero-img.webp" loading="lazy" alt="Hero Image" className="w-full h-full object-cover" />
+                                            <img src="/qpas-hero-img.webp" loading="lazy" alt="Hero Image" className="w-full h-full object-cover" />
                                         </div>
                                     </div>
                                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-background to-transparent h-24"></div>

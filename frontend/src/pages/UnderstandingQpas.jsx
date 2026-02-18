@@ -30,7 +30,7 @@ const RepositoryImageIcon = ({ className }) => {
   if (theme === "system") {
     effectiveTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
   }
-  const imgSrc = effectiveTheme === "dark" ? "/assets/repository-dark.png" : "/assets/repository.png"
+  const imgSrc = effectiveTheme === "dark" ? "/repository-dark.png" : "/repository.png"
   return (
     <img
       src={imgSrc || "/placeholder.svg"}
